@@ -13,7 +13,8 @@ This is not CrossR. Different house, different mouth.
 
 | Piece | Role |
 |---|---|
-| `berea-skills` | How the agent reads and amends the writings |
+| `.agents/skills/` | How the agent reads and amends the writings |
+| `LOOPS.md` | When those skills run |
 | `berea` | The binary |
 | the Reading | Dashboard + chat over the same files |
 
