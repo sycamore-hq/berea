@@ -15,6 +15,7 @@ This is not CrossR. Different house, different mouth.
 |---|---|
 | `.agents/skills/` | How the agent reads and amends the writings |
 | `LOOPS.md` | When those skills run |
+| `docs/loops.md` | The same loops, explained for a human |
 | `berea` | The binary |
 | the Reading | `tools/status-dash` — dashboard + chat over the same files |
 
