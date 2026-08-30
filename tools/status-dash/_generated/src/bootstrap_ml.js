@@ -22,7 +22,7 @@ try {
 }
 catch (raw_e){
   const e = Caml_js_exceptions.internalToOCamlException(raw_e);
-  console.error("bun install failed: " + Stdlib__Printexc.to_string(e));
+  Melange__Js_shims.Console.error("bun install failed: " + Stdlib__Printexc.to_string(e));
   process.exit(1);
 }
 
@@ -39,7 +39,7 @@ try {
 }
 catch (raw_e$1){
   const e$1 = Caml_js_exceptions.internalToOCamlException(raw_e$1);
-  console.error("sqlite migration failed: " + Stdlib__Printexc.to_string(e$1));
+  Melange__Js_shims.Console.error("sqlite migration failed: " + Stdlib__Printexc.to_string(e$1));
   process.exit(1);
 }
 
@@ -50,7 +50,7 @@ if (!Nodefs.existsSync(paths.specs)) {
 Melange__Js_shims.Fs.mkdir_p(Nodepath.dirname(paths.constitution));
 
 if (!Nodefs.existsSync(paths.constitution)) {
-  Nodefs.writeFileSync(paths.constitution, Melange__Paths.constitution_stub());
+  Melange__Js_shims.Fs.write_file_sync(paths.constitution, Melange__Paths.constitution_stub());
 }
 
 if (!Nodefs.existsSync(paths.memory)) {
@@ -99,9 +99,9 @@ const boot = Stdlib__String.concat("\n", {
   }
 });
 
-Nodefs.writeFileSync(paths.bootstrap_md, boot);
+Melange__Js_shims.Fs.write_file_sync(paths.bootstrap_md, boot);
 
-console.log("bootstrapped " + root);
+Melange__Js_shims.Console.log("bootstrapped " + root);
 
 process.exit(0);
 /*  Not a pure module */

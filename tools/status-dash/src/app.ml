@@ -450,8 +450,7 @@ let create_app root =
             else if Js_shims.Str.ends_with file ".svg" then "image/svg+xml"
             else "application/octet-stream"
           in
-          H.header c "content-type" mime;
-          H.body_resp c (F.read_file_sync p));
+          H.bytes_resp c ~mime (F.read_file_sync p));
 
   (* ---------- json api ---------- *)
 

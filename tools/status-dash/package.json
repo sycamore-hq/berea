@@ -7,7 +7,7 @@
     "dev": "bun run _generated/src/server.js",
     "index": "bun run _generated/src/index_ml.js",
     "check": "bun run _generated/src/check_ml.js",
-    "build": "dune build @melange"
+    "build": "dune build @melange && chmod -R u+w _generated/src && cp -f _build/default/_generated/src/*.js _generated/src/ && chmod -R u+w _generated/src"
   },
   "dependencies": {
     "hono": "^4.7.11"

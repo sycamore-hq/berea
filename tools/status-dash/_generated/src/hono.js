@@ -6,6 +6,56 @@ function param(ctx, name) {
   return ctx.req.param(name);
 }
 
+function send(ctx, mime, status, body) {
+  return ctx.body(Melange__Js_shims.Buf.of_bytes(body), status, Melange__Js_shims.str_obj({
+    hd: [
+      "content-type",
+      mime
+    ],
+    tl: /* [] */ 0
+  }));
+}
+
+const html_mime = "text/html; charset=utf-8";
+
+const text_mime = "text/plain; charset=utf-8";
+
+const json_mime = "application/json; charset=utf-8";
+
+function html_resp(ctx, body) {
+  return send(ctx, html_mime, 200, body);
+}
+
+function html_status(ctx, body, status) {
+  return send(ctx, html_mime, status, body);
+}
+
+function text_resp(ctx, body) {
+  return send(ctx, text_mime, 200, body);
+}
+
+function text_status(ctx, body, status) {
+  return send(ctx, text_mime, status, body);
+}
+
+function json_resp(ctx, json) {
+  return send(ctx, json_mime, 200, JSON.stringify(json));
+}
+
+function json_status(ctx, json, status) {
+  return send(ctx, json_mime, status, JSON.stringify(json));
+}
+
+function bytes_resp(ctx, mime, body) {
+  return send(ctx, mime, 200, body);
+}
+
+function json_body(req) {
+  return req.arrayBuffer().then(function (ab) {
+    return Promise.resolve(JSON.parse(Buffer.from(ab).toString("latin1")));
+  });
+}
+
 function query_default(ctx, name, $$default) {
   const v = ctx.req.query(name);
   if (v !== undefined) {
@@ -16,20 +66,7 @@ function query_default(ctx, name, $$default) {
 }
 
 function markdown_resp(ctx, body) {
-  const headers = Melange__Js_shims.str_obj({
-    hd: [
-      "content-type",
-      "text/markdown; charset=utf-8"
-    ],
-    tl: /* [] */ 0
-  });
-  return ctx.text(body, 200, Melange__Js_shims.unsafe_obj({
-    hd: [
-      "headers",
-      headers
-    ],
-    tl: /* [] */ 0
-  }));
+  return send(ctx, "text/markdown; charset=utf-8", 200, body);
 }
 
 function request_get_p(app, path) {
@@ -52,11 +89,30 @@ function request_post_p(app, path, body) {
   return Promise.resolve(app.request(path, init));
 }
 
+function res_bytes(r) {
+  return r.arrayBuffer().then(function (ab) {
+    return Promise.resolve(Buffer.from(ab).toString("latin1"));
+  });
+}
+
 export {
   param,
+  send,
+  html_mime,
+  text_mime,
+  json_mime,
+  html_resp,
+  html_status,
+  text_resp,
+  text_status,
+  json_resp,
+  json_status,
+  bytes_resp,
+  json_body,
   query_default,
   markdown_resp,
   request_get_p,
   request_post_p,
+  res_bytes,
 }
 /* Melange__Js_shims Not a pure module */

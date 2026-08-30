@@ -108,7 +108,7 @@ function search_memory(limitOpt, db, q) {
         hit_excerpt: r.excerpt,
         hit_kind: r.kind
       };
-    }), Melange__Js_shims.A.to_list(db.query("SELECT path, title, kind, as_of,\n                   snippet(memory_fts, 2, '', '', '\xc3\xa2\xc2\x80\xc2\xa6', 24) AS excerpt\n            FROM memory_fts\n            WHERE memory_fts MATCH ?\n            LIMIT ?").all(fts_query(query_str), limit)));
+    }), Melange__Js_shims.A.to_list(db.query("SELECT path, title, kind, as_of,\n                   snippet(memory_fts, 2, '', '', '\xe2\x80\xa6', 24) AS excerpt\n            FROM memory_fts\n            WHERE memory_fts MATCH ?\n            LIMIT ?").all(fts_query(query_str), limit)));
   }
   catch (exn){
     return /* [] */ 0;
