@@ -102,6 +102,22 @@ let sync_checks () =
   eq_string (status_to_string specified.status) "specified" "no plan → specified";
   eq_string (horizon_to_string specified.inferred_horizon) "next" "specified infers next";
 
+  (* a specified feature owns no tasks, so the summary must still name it *)
+  let specified_summary = Context_gen.build_summary [ specified ] [] "now" in
+  assert_
+    (Speckit.contains specified_summary "## Needs a plan")
+    "summary has a Needs a plan section";
+  assert_
+    (Speckit.contains specified_summary "002-x")
+    "summary names the unplanned feature";
+  assert_
+    (not (Speckit.contains specified_summary "## Ready queue\n- none\n"))
+    "empty ready queue falls through to Needs a plan";
+  let planned_summary = Context_gen.build_summary [ feature ] [] "now" in
+  assert_
+    (Speckit.contains planned_summary "## Needs a plan\n- none")
+    "nothing unplanned says none";
+
   (* bytes, not code points: an em dash is three bytes wide *)
   assert_ (String.length "—" = 3) "OCaml literals are byte strings";
 

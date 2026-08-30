@@ -7,6 +7,7 @@ import * as Caml_option from "melange.js/caml_option.js";
 import * as Js__Js_dict from "melange.js/js_dict.js";
 import * as Js__Js_json from "melange.js/js_json.js";
 import * as Melange__App from "./app.js";
+import * as Melange__Context_gen from "./context_gen.js";
 import * as Melange__Domain from "./domain.js";
 import * as Melange__Envelope from "./envelope.js";
 import * as Melange__Hono from "./hono.js";
@@ -166,6 +167,18 @@ function sync_checks(param) {
   });
   eq_string(Melange__Domain.status_to_string(specified.status), "specified", "no plan \xe2\x86\x92 specified");
   eq_string(Melange__Domain.horizon_to_string(specified.inferred_horizon), "next", "specified infers next");
+  const specified_summary = Melange__Context_gen.build_summary({
+    hd: specified,
+    tl: /* [] */ 0
+  }, /* [] */ 0, "now");
+  assert_(Melange__Speckit.contains(specified_summary, "## Needs a plan"), "summary has a Needs a plan section");
+  assert_(Melange__Speckit.contains(specified_summary, "002-x"), "summary names the unplanned feature");
+  assert_(!Melange__Speckit.contains(specified_summary, "## Ready queue\n- none\n"), "empty ready queue falls through to Needs a plan");
+  const planned_summary = Melange__Context_gen.build_summary({
+    hd: feature,
+    tl: /* [] */ 0
+  }, /* [] */ 0, "now");
+  assert_(Melange__Speckit.contains(planned_summary, "## Needs a plan\n- none"), "nothing unplanned says none");
   assert_(true, "OCaml literals are byte strings");
   const parsed = Melange__Speckit.parse_tasks_markdown(tasks_text, "001-example");
   assert_(Caml_obj.caml_notequal(parsed.edges, /* [] */ 0), "task order produces edges");
