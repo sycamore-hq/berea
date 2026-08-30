@@ -19,7 +19,6 @@ import * as Stdlib from "melange/stdlib.js";
 import * as Stdlib__List from "melange/list.js";
 import * as Stdlib__Option from "melange/option.js";
 import * as Stdlib__String from "melange/string.js";
-import * as Nodefs from "node:fs";
 import * as Nodeos from "node:os";
 
 const failures = {
@@ -167,6 +166,7 @@ function sync_checks(param) {
   });
   eq_string(Melange__Domain.status_to_string(specified.status), "specified", "no plan \xe2\x86\x92 specified");
   eq_string(Melange__Domain.horizon_to_string(specified.inferred_horizon), "next", "specified infers next");
+  assert_(true, "OCaml literals are byte strings");
   const parsed = Melange__Speckit.parse_tasks_markdown(tasks_text, "001-example");
   assert_(Caml_obj.caml_notequal(parsed.edges, /* [] */ 0), "task order produces edges");
   const flipped = Melange__Speckit.set_task_checkbox(tasks_text, "T002", true);
@@ -288,24 +288,24 @@ function make_tmp_project(param) {
   Melange__Js_shims.Fs.mkdir_p(Melange__Js_shims.Path.join3(tmp, ".specify", "memory"));
   Melange__Js_shims.Fs.mkdir_p(Melange__Js_shims.Path.join3(tmp, "specs", "001-example"));
   Melange__Js_shims.Fs.mkdir_p(Melange__Js_shims.Path.join3(tmp, "memory", "conventions"));
-  Nodefs.writeFileSync(Melange__Js_shims.Path.join4(tmp, ".specify", "memory", "constitution.md"), Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join2(Melange__Paths.fixtures_dir(), "constitution.md")));
-  Nodefs.writeFileSync(Melange__Js_shims.Path.join4(tmp, "specs", "001-example", "spec.md"), Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(Melange__Paths.fixtures_dir(), "specs", "001-example", "spec.md")));
-  Nodefs.writeFileSync(Melange__Js_shims.Path.join4(tmp, "specs", "001-example", "plan.md"), Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(Melange__Paths.fixtures_dir(), "specs", "001-example", "plan.md")));
-  Nodefs.writeFileSync(Melange__Js_shims.Path.join4(tmp, "specs", "001-example", "tasks.md"), Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(Melange__Paths.fixtures_dir(), "specs", "001-example", "tasks.md")));
-  Nodefs.writeFileSync(Melange__Js_shims.Path.join4(tmp, "memory", "conventions", "testing.md"), "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\nstatus: active\n---\n\n# Testing the overlay\n\nFTS should find this convention. Point at the constitution; do not copy it.\n");
+  Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join4(tmp, ".specify", "memory", "constitution.md"), Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join2(Melange__Paths.fixtures_dir(), "constitution.md")));
+  Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join4(tmp, "specs", "001-example", "spec.md"), Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(Melange__Paths.fixtures_dir(), "specs", "001-example", "spec.md")));
+  Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join4(tmp, "specs", "001-example", "plan.md"), Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(Melange__Paths.fixtures_dir(), "specs", "001-example", "plan.md")));
+  Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join4(tmp, "specs", "001-example", "tasks.md"), Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(Melange__Paths.fixtures_dir(), "specs", "001-example", "tasks.md")));
+  Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join4(tmp, "memory", "conventions", "testing.md"), "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\nstatus: active\n---\n\n# Testing the overlay\n\nFTS should find this convention. Point at the constitution; do not copy it.\n");
   Melange__Rebuild.rebuild_all(tmp);
   return tmp;
 }
 
 function finish(param) {
   if (Caml_obj.caml_notequal(failures.contents, /* [] */ 0)) {
-    console.error("check failed:");
+    Melange__Js_shims.Console.error("check failed:");
     Stdlib__List.iter((function (f) {
-      console.error(" - " + f);
+      Melange__Js_shims.Console.error(" - " + f);
     }), Stdlib__List.rev(failures.contents));
     process.exit(1);
   }
-  console.log("check ok");
+  Melange__Js_shims.Console.log("check ok");
   return process.exit(0);
 }
 
@@ -337,6 +337,10 @@ Melange__Hono.request_get_p(app, "/health").then(function (prim) {
 }).then(function (home) {
   assert_(Melange__Speckit.contains(home, "001-example"), "overview lists fixture spec");
   assert_(Melange__Speckit.contains(home, "What should we work on?"), "overview shows generated summary");
+  return Melange__Hono.request_get_p(app, "/specs/INDEX.md").then(Melange__Hono.res_bytes);
+}).then(function (index_wire) {
+  assert_(!Melange__Speckit.contains(index_wire, "\xc3\xa2\xc2\x80"), "no double-encoded UTF-8 on the wire");
+  assert_(Melange__Speckit.contains(index_wire, "Router only \xe2\x80\x94 load one spec folder"), "em dash reaches the wire as UTF-8");
   return Melange__Hono.request_get_p(app, "/specs").then(function (prim) {
     return prim.text();
   });
@@ -383,6 +387,9 @@ Melange__Hono.request_get_p(app, "/health").then(function (prim) {
   assert_(!still_t002, "T002 left the backlog after toggle + sync");
   const tasks_after = Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(tmp, "specs", "001-example", "tasks.md"));
   assert_(Melange__Speckit.contains(tasks_after, "- [x] T002"), "checkbox written to tasks.md");
+  const index_md = Melange__Js_shims.Fs.read_file_bytes(Melange__Js_shims.Path.join3(tmp, "specs", "INDEX.md"));
+  assert_(!Melange__Speckit.contains(index_md, "\xc3\xa2\xc2\x80"), "no double-encoded UTF-8 on disk in INDEX.md");
+  assert_(Melange__Speckit.contains(index_md, "Router only \xe2\x80\x94 load one spec folder"), "INDEX.md em dash survives the write");
   return Melange__Hono.request_post_p(app, "/api/chat", "{\"message\":\"any decision or convention?\"}").then(function (prim) {
     return prim.json();
   });
@@ -392,7 +399,7 @@ Melange__Hono.request_get_p(app, "/health").then(function (prim) {
   return Promise.resolve(finish());
 }).catch(function (e) {
   const msg = Stdlib__Option.value(e.message, "unknown JS error");
-  console.error("check crashed: " + msg);
+  Melange__Js_shims.Console.error("check crashed: " + msg);
   return process.exit(1);
 });
 

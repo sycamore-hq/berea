@@ -1,6 +1,24 @@
 (* Thin bindings to node:fs, node:path, node:os, node:child_process,
    process, Date, console. Runs under Bun. *)
 
+(* Melange compiles an OCaml string literal to a JS string with one code
+   unit per byte: "\xe2\x80\x94" for "\u{2014}". Every boundary that leaves the
+   program must hand those bytes over as bytes. Encode them as UTF-8 text
+   instead and each byte is encoded a second time, which is how an em dash
+   becomes "\u{c3}\u{a2}\u{c2}\u{80}\u{c2}\u{94}". *)
+module Buf = struct
+  type t
+
+  external from : string -> string -> t = "from" [@@mel.scope "Buffer"]
+  external to_str : t -> string -> string = "toString" [@@mel.send]
+
+  (* byte string -> Buffer holding exactly those bytes *)
+  let of_bytes s = from s "latin1"
+
+  (* byte string -> JS text, for sinks that encode as UTF-8 themselves *)
+  let to_text s = to_str (of_bytes s) "utf8"
+end
+
 module Str = struct
   external starts_with : string -> string -> bool = "startsWith" [@@mel.send]
   external ends_with : string -> string -> bool = "endsWith" [@@mel.send]
@@ -86,9 +104,13 @@ end
 external exn_message : 'a -> string option = "message" [@@mel.get]
 
 module Console = struct
-  external log : string -> unit = "log" [@@mel.scope "console"]
-  external warn : string -> unit = "warn" [@@mel.scope "console"]
-  external error : string -> unit = "error" [@@mel.scope "console"]
+  external log_raw : string -> unit = "log" [@@mel.scope "console"]
+  external warn_raw : string -> unit = "warn" [@@mel.scope "console"]
+  external error_raw : string -> unit = "error" [@@mel.scope "console"]
+
+  let log s = log_raw (Buf.to_text s)
+  let warn s = warn_raw (Buf.to_text s)
+  let error s = error_raw (Buf.to_text s)
 end
 
 module Crypto = struct
@@ -101,12 +123,24 @@ end
 
 module Fs = struct
   external exists_sync : string -> bool = "existsSync" [@@mel.module "node:fs"]
-external read_file_sync_raw : string -> string -> string = "readFileSync" [@@mel.module "node:fs"]
-
-  let read_file_sync path = read_file_sync_raw path "utf8"
-
-  external write_file_sync : string -> string -> unit = "writeFileSync"
+  external read_file_sync_raw : string -> string -> string = "readFileSync"
   [@@mel.module "node:fs"]
+
+  external write_file_sync_raw : string -> string -> string -> unit = "writeFileSync"
+  [@@mel.module "node:fs"]
+
+  (* latin1 is the byte-exact codec: one JS code unit per byte, in and out.
+     It also makes String.length and String.sub count bytes, which is what
+     every parser in speckit.ml already assumes.
+
+     read_file_bytes names that explicitly, so a test can read a file through
+     a lens that cannot hide a double encoding the way a matching pair of
+     utf8 read and utf8 write does. *)
+  let read_file_bytes path = read_file_sync_raw path "latin1"
+
+  let read_file_sync path = read_file_bytes path
+
+  let write_file_sync path contents = write_file_sync_raw path contents "latin1"
 
   external readdir_sync : string -> string array = "readdirSync" [@@mel.module "node:fs"]
 

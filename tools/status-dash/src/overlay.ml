@@ -171,7 +171,7 @@ let search_memory ?(limit = 12) db q =
         (query
            db
            {|SELECT path, title, kind, as_of,
-                   snippet(memory_fts, 2, '', '', 'â¦', 24) AS excerpt
+                   snippet(memory_fts, 2, '', '', '…', 24) AS excerpt
             FROM memory_fts
             WHERE memory_fts MATCH ?
             LIMIT ?|}

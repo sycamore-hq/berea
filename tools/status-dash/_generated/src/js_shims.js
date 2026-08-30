@@ -7,6 +7,19 @@ import * as Stdlib__Option from "melange/option.js";
 import * as Nodefs from "node:fs";
 import * as Nodepath from "node:path";
 
+function of_bytes(s) {
+  return Buffer.from(s, "latin1");
+}
+
+function to_text(s) {
+  return Buffer.from(s, "latin1").toString("utf8");
+}
+
+const Buf = {
+  of_bytes,
+  to_text
+};
+
 const Str = {};
 
 const of_list = Stdlib__Array.of_list;
@@ -63,14 +76,38 @@ const Process = {
   argv_1
 };
 
-const Console = {};
+function log(s) {
+  console.log(to_text(s));
+}
+
+function warn(s) {
+  console.warn(to_text(s));
+}
+
+function error(s) {
+  console.error(to_text(s));
+}
+
+const Console = {
+  log,
+  warn,
+  error
+};
 
 const $$Crypto = {};
 
 const Child_process = {};
 
+function read_file_bytes(path) {
+  return Nodefs.readFileSync(path, "latin1");
+}
+
 function read_file_sync(path) {
-  return Nodefs.readFileSync(path, "utf8");
+  return Nodefs.readFileSync(path, "latin1");
+}
+
+function write_file_sync(path, contents) {
+  Nodefs.writeFileSync(path, contents, "latin1");
 }
 
 function mkdir_p(dir) {
@@ -88,7 +125,9 @@ function is_dir(path) {
 }
 
 const Fs = {
+  read_file_bytes,
   read_file_sync,
+  write_file_sync,
   recursive: true,
   mkdir_p,
   mtime_ms,
@@ -116,6 +155,7 @@ const Path = {
 const Os = {};
 
 export {
+  Buf,
   Str,
   A,
   str_obj,

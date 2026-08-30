@@ -102,6 +102,9 @@ let sync_checks () =
   eq_string (status_to_string specified.status) "specified" "no plan → specified";
   eq_string (horizon_to_string specified.inferred_horizon) "next" "specified infers next";
 
+  (* bytes, not code points: an em dash is three bytes wide *)
+  assert_ (String.length "—" = 3) "OCaml literals are byte strings";
+
   let parsed = Speckit.parse_tasks_markdown tasks_text "001-example" in
   assert_ (parsed.Speckit.edges <> []) "task order produces edges";
 
@@ -232,6 +235,15 @@ let _ =
        (fun home ->
          assert_ (Speckit.contains home "001-example") "overview lists fixture spec";
          assert_ (Speckit.contains home "What should we work on?") "overview shows generated summary";
+         H.request_get_p app "/specs/INDEX.md" |> then_ H.res_bytes)
+  |> then_
+       (fun index_wire ->
+         assert_
+           (not (Speckit.contains index_wire "\xc3\xa2\xc2\x80"))
+           "no double-encoded UTF-8 on the wire";
+         assert_
+           (Speckit.contains index_wire "Router only — load one spec folder")
+           "em dash reaches the wire as UTF-8";
          H.request_get_p app "/specs" |> then_ H.res_text)
   |> then_
        (fun specs_page ->
@@ -277,6 +289,13 @@ let _ =
          assert_ (not still_t002) "T002 left the backlog after toggle + sync";
          let tasks_after = F.read_file_sync (P.join4 tmp "specs" "001-example" "tasks.md") in
          assert_ (Speckit.contains tasks_after "- [x] T002") "checkbox written to tasks.md";
+         let index_md = F.read_file_bytes (P.join3 tmp "specs" "INDEX.md") in
+         assert_
+           (not (Speckit.contains index_md "\xc3\xa2\xc2\x80"))
+           "no double-encoded UTF-8 on disk in INDEX.md";
+         assert_
+           (Speckit.contains index_md "Router only — load one spec folder")
+           "INDEX.md em dash survives the write";
          H.request_post_p app "/api/chat" "{\"message\":\"any decision or convention?\"}" |> then_ H.res_json)
   |> then_
        (fun mem ->

@@ -15,7 +15,7 @@ const p = Stdlib.int_of_string_opt(Melange__Js_shims.Process.env_port());
 
 const port = p !== undefined && p > 0 ? p : 8787;
 
-console.log(Curry._2(Stdlib__Printf.sprintf({
+Melange__Js_shims.Console.log(Curry._2(Stdlib__Printf.sprintf({
   TAG: /* Format */ 0,
   _0: {
     TAG: /* String_literal */ 11,

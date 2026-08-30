@@ -1,4 +1,4 @@
-<!-- generated: do not edit. Router only â load one spec folder. -->
+<!-- generated: do not edit. Router only — load one spec folder. -->
 # Specs
 
 | ID | Title | Status | Horizon | Tasks | Path |

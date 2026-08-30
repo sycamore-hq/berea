@@ -186,7 +186,7 @@ function body_bool(json, k) {
 }
 
 function catch_null(c, f) {
-  return c.req.json().then(function (body) {
+  return Melange__Hono.json_body(c.req).then(function (body) {
     return Promise.resolve(Curry._1(f, Caml_option.some(body)));
   }).catch(function (param) {
     return Promise.resolve(Curry._1(f, undefined));
@@ -341,7 +341,7 @@ function create_app(root) {
   };
   app.get("/health", (function (c) {
     const t = state.contents.st_tree;
-    return c.json(health_json(Stdlib__List.length(t.features), Melange__Overlay.ping(db), Melange__Rebuild.context_age_s(paths), t.parse_errors));
+    return Melange__Hono.json_resp(c, health_json(Stdlib__List.length(t.features), Melange__Overlay.ping(db), Melange__Rebuild.context_age_s(paths), t.parse_errors));
   }));
   app.get("/", (function (c) {
     const t = state.contents.st_tree;
@@ -427,7 +427,7 @@ function create_app(root) {
     }) + ("\n<h2>In flight</h2>\n" + (Melange__Html.feature_table(Stdlib__List.map(Melange__Domain.spec_card, in_flight), "Nothing in flight.") + ("\n<h2>Now</h2>\n" + (Melange__Html.feature_table(Stdlib__List.map(Melange__Domain.spec_card, now_specs), "No now-horizon specs.") + ("\n<h2>Blocked</h2>\n" + (blocked_items_html + ("\n<h2>Pins</h2>\n" + (pins_html + ("\n<h2>Generated summary</h2>\n" + (
       summary_md === "" ? "<p class=\"empty\"><em>Run</em> <code>bun run index</code> or POST /api/sync.</p>" : Melange__Html.md_article(summary_md)
     )))))))))));
-    return c.html(page_html("Overview", "/", body));
+    return Melange__Hono.html_resp(c, page_html("Overview", "/", body));
   }));
   app.get("/roadmap", (function (c) {
     const features = state.contents.st_tree.features;
@@ -460,7 +460,7 @@ function create_app(root) {
         }
       }
     }));
-    return c.html(page_html("Roadmap", "/roadmap", "<h1>Roadmap</h1>" + sections));
+    return Melange__Hono.html_resp(c, page_html("Roadmap", "/roadmap", "<h1>Roadmap</h1>" + sections));
   }));
   app.get("/backlog", (function (c) {
     const features = state.contents.st_tree.features;
@@ -473,25 +473,25 @@ function create_app(root) {
       };
     }), Melange__Views.backlog_items(features));
     const body = "<h1>Backlog</h1>\n<p>Open tasks across specs, in the order <code>tasks.md</code> states.</p>\n" + Melange__Html.task_table(true, items);
-    return c.html(page_html("Backlog", "/backlog", body));
+    return Melange__Hono.html_resp(c, page_html("Backlog", "/backlog", body));
   }));
   app.get("/specs", (function (c) {
     const cards = Stdlib__List.map(Melange__Domain.spec_card, state.contents.st_tree.features);
     const body = "<h1>Specs</h1>\n<p>Router: <a href=\"/specs/INDEX.md\"><code>specs/INDEX.md</code></a> (generated).</p>\n" + Melange__Html.feature_table(cards, "No specs yet.");
-    return c.html(page_html("Specs", "/specs", body));
+    return Melange__Hono.html_resp(c, page_html("Specs", "/specs", body));
   }));
   app.get("/specs/INDEX.md", (function (c) {
     if (Nodefs.existsSync(paths.index_md)) {
       return Melange__Hono.markdown_resp(c, Melange__Js_shims.Fs.read_file_sync(paths.index_md));
     } else {
-      return c.text("INDEX.md not generated", 404);
+      return Melange__Hono.text_status(c, "INDEX.md not generated", 404);
     }
   }));
   app.get("/specs/:slug", (function (c) {
     const slug = Melange__Hono.param(c, "slug");
     const feature = Melange__Views.find_feature(state.contents.st_tree.features, slug);
     if (feature === undefined) {
-      return c.html(page_html("Missing", "/specs", "<h1>No spec " + (Melange__Markdown.esc(slug) + "</h1>")), 404);
+      return Melange__Hono.html_status(c, page_html("Missing", "/specs", "<h1>No spec " + (Melange__Markdown.esc(slug) + "</h1>")), 404);
     }
     const detail = Melange__Views.spec_detail_of_feature(feature);
     const tasks = Stdlib__List.map((function (t) {
@@ -562,12 +562,12 @@ function create_app(root) {
         }
       }
     }) + ("\n<h2>spec.md</h2>\n" + (Melange__Html.md_article(feature.spec_md) + (plan_section + ("\n<h2>tasks.md</h2>\n" + (Melange__Html.task_table(true, tasks) + raw_tasks))))))));
-    return c.html(page_html(feature.slug, "/specs", body));
+    return Melange__Hono.html_resp(c, page_html(feature.slug, "/specs", body));
   }));
   app.get("/constitution", (function (c) {
     const con = state.contents.st_tree.tree_constitution;
     const body = con.present ? "<h1>" + (Melange__Markdown.esc(con.const_title) + ("</h1>\n<p class=\"empty\">Read-only. Amend the file, not this page. Not copied into <code>memory/</code>.</p>\n" + Melange__Html.md_article(con.const_body))) : "<h1>Constitution</h1><p>Missing. Bootstrap writes a stub.</p>";
-    return c.html(page_html("Constitution", "/constitution", body));
+    return Melange__Hono.html_resp(c, page_html("Constitution", "/constitution", body));
   }));
   app.get("/graph", (function (c) {
     const graph = Melange__Views.graph_typed(state.contents.st_tree.features);
@@ -582,7 +582,7 @@ function create_app(root) {
     ) + ("</ul>\n<h2>Edges</h2><ul class=\"graph\">" + ((
       edges ? Stdlib__String.concat("", edges) : "<li>none</li>"
     ) + "</ul>")));
-    return c.html(page_html("Graph", "/graph", body));
+    return Melange__Hono.html_resp(c, page_html("Graph", "/graph", body));
   }));
   app.get("/memory", (function (c) {
     const notes = Melange__Load_tree.load_memory_notes(undefined, paths.memory);
@@ -592,46 +592,45 @@ function create_app(root) {
         return "<li><strong>" + (Melange__Markdown.esc(n.note_title) + ("</strong> <code>" + (Melange__Markdown.esc(n.note_path) + ("</code>\n<span class=\"muted\">" + (Melange__Markdown.esc(Melange__Memory_ml.kind_to_string(n.note_kind)) + (" \xc2\xb7 " + (Melange__Markdown.esc(s !== undefined ? s : "") + ("</span>\n<p>" + (Melange__Markdown.esc(b.length > 200 ? Stdlib__String.sub(b, 0, 200) : b) + "</p></li>")))))))));
       }), notes)) + "</ul>");
     const body = "<h1>Memory</h1>\n<p>Read-only. Constitution is not copied here; point at it.</p>\n" + items;
-    return c.html(page_html("Memory", "/memory", body));
+    return Melange__Hono.html_resp(c, page_html("Memory", "/memory", body));
   }));
   app.get("/static/:file", (function (c) {
     const file = Melange__Hono.param(c, "file");
     if (Melange__Speckit.contains(file, "/") || Melange__Speckit.contains(file, "..")) {
-      return c.text("not found", 404);
+      return Melange__Hono.text_status(c, "not found", 404);
     }
     const p = Melange__Js_shims.Path.join2(Melange__Paths.public_dir(), file);
     if (!Nodefs.existsSync(p)) {
-      return c.text("not found", 404);
+      return Melange__Hono.text_status(c, "not found", 404);
     }
     const mime = file.endsWith(".css") ? "text/css; charset=utf-8" : (
         file.endsWith(".js") ? "text/javascript; charset=utf-8" : (
             file.endsWith(".svg") ? "image/svg+xml" : "application/octet-stream"
           )
       );
-    c.header("content-type", mime);
-    return c.body(Melange__Js_shims.Fs.read_file_sync(p));
+    return Melange__Hono.bytes_resp(c, mime, Melange__Js_shims.Fs.read_file_sync(p));
   }));
   app.get("/api/summary", (function (c) {
     const features = state.contents.st_tree.features;
-    return c.json(Melange__Views.summary_visual_json(features, Melange__Context_gen.blocked_tasks(features)));
+    return Melange__Hono.json_resp(c, Melange__Views.summary_visual_json(features, Melange__Context_gen.blocked_tasks(features)));
   }));
   app.get("/api/roadmap", (function (c) {
-    return c.json(Melange__Views.roadmap_json(state.contents.st_tree.features));
+    return Melange__Hono.json_resp(c, Melange__Views.roadmap_json(state.contents.st_tree.features));
   }));
   app.get("/api/backlog", (function (c) {
-    return c.json(Melange__Views.backlog_json(state.contents.st_tree.features));
+    return Melange__Hono.json_resp(c, Melange__Views.backlog_json(state.contents.st_tree.features));
   }));
   app.get("/api/specs", (function (c) {
-    return c.json(Melange__Views.Json.arr(Stdlib__List.map((function (f) {
+    return Melange__Hono.json_resp(c, Melange__Views.Json.arr(Stdlib__List.map((function (f) {
       return Melange__Views.spec_card_json(Melange__Domain.spec_card(f));
     }), state.contents.st_tree.features)));
   }));
   app.get("/api/specs/:slug", (function (c) {
     const f = Melange__Views.find_feature(state.contents.st_tree.features, Melange__Hono.param(c, "slug"));
     if (f !== undefined) {
-      return c.json(Melange__Views.spec_detail_json(Melange__Views.spec_detail_of_feature(f)));
+      return Melange__Hono.json_resp(c, Melange__Views.spec_detail_json(Melange__Views.spec_detail_of_feature(f)));
     } else {
-      return c.json(Melange__Views.Json.obj({
+      return Melange__Hono.json_status(c, Melange__Views.Json.obj({
         hd: [
           "error",
           Melange__Views.Json.str("not found")
@@ -647,7 +646,7 @@ function create_app(root) {
     if (match !== undefined) {
       const match$1 = Melange__Views.find_task(state.contents.st_tree.features, ref_);
       if (match$1 !== undefined) {
-        return c.json(Melange__Views.Json.obj({
+        return Melange__Hono.json_resp(c, Melange__Views.Json.obj({
           hd: [
             "kind",
             Melange__Views.Json.str("task")
@@ -667,7 +666,7 @@ function create_app(root) {
           }
         }));
       } else {
-        return c.json(Melange__Views.Json.obj({
+        return Melange__Hono.json_status(c, Melange__Views.Json.obj({
           hd: [
             "error",
             Melange__Views.Json.str("not found")
@@ -678,7 +677,7 @@ function create_app(root) {
     }
     const slug = r.slug;
     if (slug === undefined) {
-      return c.json(Melange__Views.Json.obj({
+      return Melange__Hono.json_status(c, Melange__Views.Json.obj({
         hd: [
           "error",
           Melange__Views.Json.str("not found")
@@ -688,7 +687,7 @@ function create_app(root) {
     }
     const f = Melange__Views.find_feature(state.contents.st_tree.features, slug);
     if (f !== undefined) {
-      return c.json(Melange__Views.Json.obj({
+      return Melange__Hono.json_resp(c, Melange__Views.Json.obj({
         hd: [
           "kind",
           Melange__Views.Json.str("spec")
@@ -702,7 +701,7 @@ function create_app(root) {
         }
       }));
     } else {
-      return c.json(Melange__Views.Json.obj({
+      return Melange__Hono.json_status(c, Melange__Views.Json.obj({
         hd: [
           "error",
           Melange__Views.Json.str("not found")
@@ -762,7 +761,7 @@ function create_app(root) {
       }), f.tasks);
       return Stdlib.$at(spec_hits, task_hits);
     }), state.contents.st_tree.features);
-    return c.json(Melange__Views.Json.obj({
+    return Melange__Hono.json_resp(c, Melange__Views.Json.obj({
       hd: [
         "hits",
         Melange__Views.Json.arr(hits)
@@ -773,7 +772,7 @@ function create_app(root) {
   app.get("/api/memory", (function (c) {
     const q = Melange__Hono.query_default(c, "q", "");
     const hits = Melange__Overlay.search_memory(undefined, db, q);
-    return c.json(Melange__Views.Json.obj({
+    return Melange__Hono.json_resp(c, Melange__Views.Json.obj({
       hd: [
         "hits",
         Melange__Views.Json.arr(hit_json_list(hits))
@@ -782,7 +781,7 @@ function create_app(root) {
     }));
   }));
   app.get("/api/pins", (function (c) {
-    return c.json(Melange__Views.Json.obj({
+    return Melange__Hono.json_resp(c, Melange__Views.Json.obj({
       hd: [
         "pins",
         Melange__Views.Json.arr(Stdlib__List.map((function (p) {
@@ -811,18 +810,18 @@ function create_app(root) {
     }));
   }));
   app.get("/api/metrics", (function (c) {
-    return c.json(Melange__Views.metrics_json(state.contents.st_tree.features));
+    return Melange__Hono.json_resp(c, Melange__Views.metrics_json(state.contents.st_tree.features));
   }));
   app.post("/api/sync", (function (c) {
-    return Promise.resolve(c.json(sync_json()));
+    return Promise.resolve(Melange__Hono.json_resp(c, sync_json()));
   }));
   app.post("/api/index", (function (c) {
-    return Promise.resolve(c.json(sync_json()));
+    return Promise.resolve(Melange__Hono.json_resp(c, sync_json()));
   }));
   app.post("/api/task", (function (c) {
     return catch_null(c, (function (body) {
       if (body === undefined) {
-        return c.json(Melange__Views.Json.obj({
+        return Melange__Hono.json_status(c, Melange__Views.Json.obj({
           hd: [
             "error",
             Melange__Views.Json.str("ref required")
@@ -833,7 +832,7 @@ function create_app(root) {
       const body$1 = Caml_option.valFromOption(body);
       const ref_ = body_string(body$1, "ref");
       if (ref_ === undefined) {
-        return c.json(Melange__Views.Json.obj({
+        return Melange__Hono.json_status(c, Melange__Views.Json.obj({
           hd: [
             "error",
             Melange__Views.Json.str("ref required")
@@ -849,7 +848,7 @@ function create_app(root) {
       if (match !== undefined && match$1 !== undefined) {
         const tasks_path = Melange__Js_shims.Path.join3(paths.specs, match, "tasks.md");
         if (!Nodefs.existsSync(tasks_path)) {
-          return c.json(Melange__Views.Json.obj({
+          return Melange__Hono.json_status(c, Melange__Views.Json.obj({
             hd: [
               "error",
               Melange__Views.Json.str("tasks.md missing")
@@ -860,7 +859,7 @@ function create_app(root) {
         const current = Melange__Js_shims.Fs.read_file_sync(tasks_path);
         const e = Melange__Speckit.set_task_checkbox(current, match$1, done_);
         if (e.TAG !== /* Ok */ 0) {
-          return c.json(Melange__Views.Json.obj({
+          return Melange__Hono.json_status(c, Melange__Views.Json.obj({
             hd: [
               "error",
               Melange__Views.Json.str(e._0)
@@ -868,11 +867,11 @@ function create_app(root) {
             tl: /* [] */ 0
           }), 404);
         }
-        Nodefs.writeFileSync(tasks_path, e._0);
+        Melange__Js_shims.Fs.write_file_sync(tasks_path, e._0);
         Melange__Rebuild.rebuild_all(root);
         reload();
         const features = state.contents.st_tree.features;
-        return c.json(Melange__Views.Json.obj({
+        return Melange__Hono.json_resp(c, Melange__Views.Json.obj({
           hd: [
             "ok",
             Melange__Views.Json.bool(true)
@@ -904,7 +903,7 @@ function create_app(root) {
           }
         }));
       }
-      return c.json(Melange__Views.Json.obj({
+      return Melange__Hono.json_status(c, Melange__Views.Json.obj({
         hd: [
           "error",
           Melange__Views.Json.str("ref must be slug#T0xx")
@@ -916,7 +915,7 @@ function create_app(root) {
   app.post("/api/pins", (function (c) {
     return catch_null(c, (function (body) {
       if (body === undefined) {
-        return c.json(Melange__Views.Json.obj({
+        return Melange__Hono.json_status(c, Melange__Views.Json.obj({
           hd: [
             "error",
             Melange__Views.Json.str("ref and reason required")
@@ -929,7 +928,7 @@ function create_app(root) {
       const match$1 = body_string(body$1, "reason");
       if (match !== undefined && match$1 !== undefined) {
         const pin = Melange__Overlay.upsert_pin(db, match, match$1);
-        return c.json(Melange__Views.Json.obj({
+        return Melange__Hono.json_resp(c, Melange__Views.Json.obj({
           hd: [
             "ok",
             Melange__Views.Json.bool(true)
@@ -961,7 +960,7 @@ function create_app(root) {
           }
         }));
       }
-      return c.json(Melange__Views.Json.obj({
+      return Melange__Hono.json_status(c, Melange__Views.Json.obj({
         hd: [
           "error",
           Melange__Views.Json.str("ref and reason required")
@@ -973,7 +972,7 @@ function create_app(root) {
   app.post("/api/chat", (function (c) {
     return catch_null(c, (function (body) {
       if (body === undefined) {
-        return c.json(Melange__Views.Json.obj({
+        return Melange__Hono.json_status(c, Melange__Views.Json.obj({
           hd: [
             "error",
             Melange__Views.Json.str("message required")
@@ -984,7 +983,7 @@ function create_app(root) {
       const body$1 = Caml_option.valFromOption(body);
       const message = body_string(body$1, "message");
       if (message === undefined) {
-        return c.json(Melange__Views.Json.obj({
+        return Melange__Hono.json_status(c, Melange__Views.Json.obj({
           hd: [
             "error",
             Melange__Views.Json.str("message required")
@@ -1021,7 +1020,7 @@ function create_app(root) {
       const d$1 = Js__Js_json.decodeObject(envelope);
       const d$2 = d$1 !== undefined ? Caml_option.valFromOption(d$1) : ({});
       d$2["thread_id"] = Melange__Views.Json.str(thread_id);
-      return c.json(d$2);
+      return Melange__Hono.json_resp(c, d$2);
     }));
   }));
   return app;

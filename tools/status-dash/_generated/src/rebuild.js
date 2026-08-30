@@ -24,12 +24,12 @@ function rebuild_all(root) {
   const generated_at = Melange__Js_shims.$$Date.now_iso();
   const summary = Melange__Context_gen.build_summary(tree.features, blocked, generated_at);
   Melange__Js_shims.Fs.mkdir_p(paths.context);
-  Nodefs.writeFileSync(Melange__Js_shims.Path.join2(paths.context, "summary.md"), summary);
-  Nodefs.writeFileSync(Melange__Js_shims.Path.join2(paths.context, "active.md"), Melange__Context_gen.build_active(tree.features));
-  Nodefs.writeFileSync(Melange__Js_shims.Path.join2(paths.context, "blocked.md"), Melange__Context_gen.build_blocked_md(blocked));
-  Nodefs.writeFileSync(Melange__Js_shims.Path.join2(paths.context, "metrics.md"), Melange__Context_gen.build_metrics_md(tree.features));
+  Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join2(paths.context, "summary.md"), summary);
+  Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join2(paths.context, "active.md"), Melange__Context_gen.build_active(tree.features));
+  Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join2(paths.context, "blocked.md"), Melange__Context_gen.build_blocked_md(blocked));
+  Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join2(paths.context, "metrics.md"), Melange__Context_gen.build_metrics_md(tree.features));
   Melange__Js_shims.Fs.mkdir_p(paths.specs);
-  Nodefs.writeFileSync(paths.index_md, Melange__Context_gen.build_index(tree.features));
+  Melange__Js_shims.Fs.write_file_sync(paths.index_md, Melange__Context_gen.build_index(tree.features));
   const notes = Melange__Load_tree.load_memory_notes(undefined, paths.memory);
   Melange__Overlay.replace_memory_fts(db, notes);
   Melange__Overlay.insert_snapshot(db, summary);
