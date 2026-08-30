@@ -1,0 +1,9 @@
+(lang dune 3.8)
+(name status_dash)
+
+(using melange 0.1)
+
+(package
+ (name status_dash)
+ (synopsis "Spec-kit reading surface domain")
+ (allow_empty))

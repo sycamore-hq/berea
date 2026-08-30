@@ -18,6 +18,7 @@ This is not CrossR. Do not speak Forge, AVRIL, or AXEL here.
 - Generated context (derived, do not hand-edit): `.dash/context/summary.md`
 - Reviewed memory: `memory/README.md`
 - Skills: `.agents/skills/<name>/SKILL.md`
+- Loops: `LOOPS.md`
 - House README: `README.md`
 
 Never invent a second backlog. Never copy spec-kit files into another schema.
@@ -52,9 +53,17 @@ Memory commits start with `memory:`.
 
 ## Skills
 
+- `examine` — cite or withdraw; run first
 - `read-status` — morning question, named slug or `T0xx`, chat visuals
+- `specify-writing` — mid-day conversation becomes `spec.md`
+- `implement-task` — one named task, one checkbox, rebuild
+- `converge-writings` — spec vs plan vs tasks vs tree; append-only
 - `curate-memory` — classify transcript + diff; never check off a task
+- `rebuild-context` — regenerate `.dash/context/` and `specs/INDEX.md`
 - `boot-dash` — bootstrap, ports, degraded modes
+- `ocaml-code-writer` — named list combinators; never fold_right a filter/map
+
+Skills teach how. `LOOPS.md` decides when.
 
 ## Boot
 
@@ -65,11 +74,12 @@ bun run bootstrap && bun run dev
 
 Reading surface (local): `http://127.0.0.1:8787`
 
-- `GET /` overview
+- `GET /` overview · `/roadmap` · `/backlog` · `/graph` · `/memory`
 - `GET /specs/:slug` one writing
 - `GET /constitution`
 - `POST /api/chat` visuals
 - `POST /api/task` checkbox write
+- `POST /api/sync` rebuild derived context
 - `GET /health`
 
 Personal identity and preferences stay in a separate vault. Not here.

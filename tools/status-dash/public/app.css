@@ -1,0 +1,192 @@
+:root {
+  --paper: #f3ead9;
+  --paper-2: #e8dcc4;
+  --ink: #1b1610;
+  --muted: #5e5346;
+  --rule: #c4b394;
+  --ribbon: #8a1f2c;
+  --ribbon-soft: #c56b6b;
+  --ok: #2c5a38;
+  --warn: #8a5a12;
+  --blocked: #8a1f2c;
+  --planned: #3d4d6b;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.5 "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+}
+
+.skip {
+  position: absolute;
+  left: -999px;
+}
+.skip:focus { left: 1rem; top: 1rem; background: var(--paper); padding: 0.3rem; }
+
+.mast {
+  padding: 1.25rem 1.5rem 0.75rem;
+  border-bottom: 3px solid var(--ribbon);
+  background: linear-gradient(180deg, #f7f0e2 0%, var(--paper) 100%);
+}
+.mark {
+  margin: 0;
+  font-size: 1.4rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.verse {
+  margin: 0.35rem 0 0;
+  max-width: 42rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.shell {
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 1fr) 18rem;
+  gap: 1.5rem;
+  padding: 1.25rem 1.5rem 3rem;
+  align-items: start;
+}
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  position: sticky;
+  top: 1rem;
+}
+.rail a {
+  color: var(--ink);
+  text-decoration: none;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid transparent;
+}
+.rail a[aria-current="page"],
+.rail a:hover {
+  border-bottom-color: var(--ribbon);
+}
+
+main { min-width: 0; }
+h1 { font-size: 1.85rem; margin: 0 0 0.75rem; font-weight: 600; }
+h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; font-weight: 600; }
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.6rem 1rem;
+  margin: 0 0 1.25rem;
+  padding: 0.8rem 1rem;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+}
+.facts div { margin: 0; }
+.facts dt { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.facts dd { margin: 0.1rem 0 0; font-size: 1.15rem; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+th, td {
+  text-align: left;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+th { font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+
+.pill {
+  display: inline-block;
+  padding: 0.05rem 0.45rem;
+  border: 1px solid var(--rule);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+}
+.pill.in-progress { border-color: var(--ribbon); color: var(--ribbon); }
+.pill.blocked { background: var(--ribbon); color: var(--paper); border-color: var(--ribbon); }
+.pill.done { color: var(--ok); border-color: var(--ok); }
+.pill.planned, .pill.specified { color: var(--planned); }
+
+.empty { color: var(--muted); font-style: italic; }
+.muted { color: var(--muted); }
+.banner {
+  background: #f3d9a8;
+  border: 1px solid var(--warn);
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+}
+form.inline { display: inline; }
+form.inline button {
+  font: inherit;
+  background: none;
+  border: 1px solid var(--ink);
+  cursor: pointer;
+}
+
+.prose { max-width: 46rem; }
+.prose pre {
+  background: #1b1610;
+  color: #f3ead9;
+  padding: 0.8rem;
+  overflow: auto;
+}
+.prose code { font-family: ui-monospace, "IBM Plex Mono", monospace; font-size: 0.9em; }
+.prose a.wiki { color: var(--ribbon); }
+.prose ul.task, .prose li.task { list-style: none; margin-left: 0; }
+
+.ask {
+  position: sticky;
+  top: 1rem;
+  border: 1px solid var(--rule);
+  background: var(--paper-2);
+  padding: 0.8rem;
+}
+.ask h2 { margin: 0 0 0.5rem; font-size: 1rem; }
+.ask textarea, .ask button {
+  font: inherit;
+  width: 100%;
+}
+.ask textarea {
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  padding: 0.4rem;
+  resize: vertical;
+}
+.ask button {
+  margin-top: 0.4rem;
+  background: var(--ink);
+  color: var(--paper);
+  border: 0;
+  padding: 0.4rem;
+  cursor: pointer;
+}
+.chat-out { margin-top: 0.8rem; font-size: 0.92rem; }
+.chat-out .visual {
+  margin-top: 0.6rem;
+  border-top: 1px solid var(--rule);
+  padding-top: 0.5rem;
+}
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+.graph { padding-left: 1.1rem; }
+
+@media (max-width: 900px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+  .rail {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.6rem 1rem;
+    position: static;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 0.6rem;
+  }
+  .ask { position: static; }
+}

@@ -1,0 +1,8 @@
+.dash/
+/node_modules/
+.DS_Store
+*.log
+_build/
+_opam/
+.merlin
+.playwright-mcp/

@@ -13,9 +13,10 @@ This is not CrossR. Different house, different mouth.
 
 | Piece | Role |
 |---|---|
-| `berea-skills` | How the agent reads and amends the writings |
+| `.agents/skills/` | How the agent reads and amends the writings |
+| `LOOPS.md` | When those skills run |
 | `berea` | The binary |
-| the Reading | Dashboard + chat over the same files |
+| the Reading | `tools/status-dash` — dashboard + chat over the same files |
 
 Morning asks “what should we work on?” from a generated summary, not from slurp-the-tree. Mid-day, a design conversation becomes `specs/NNN-slug/spec.md`. Afternoon implements a named task and checks the box in `tasks.md`. End of day commits. Tomorrow starts from disk.
 
