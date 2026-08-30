@@ -31,7 +31,11 @@ Implement only what the task names. Match the plan's stack when a plan
 exists. Match existing code shape. Do not refactor neighbors.
 
 Run the deterministic checks the repo already has. Prefer those over
-an LLM verdict.
+an LLM verdict. For `tools/status-dash`, that is `bun run build` then
+`bun run check`; commit the regenerated `_generated/` JS with the
+change, since degraded mode runs it.
+
+OCaml or Melange in the diff → `ocaml-code-writer` applies.
 
 ## Close the task
 

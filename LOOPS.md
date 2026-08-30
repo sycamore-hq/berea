@@ -36,7 +36,8 @@ the `specify` CLI if present; files still win if it is not.
 
 Named `NNN-slug#T0xx` only. Worktree. Prerequisites must be checked.
 Flip that one box. Rebuild. Three failures with no new evidence: stop.
-Skill: `implement-task`.
+Skill: `implement-task`. OCaml or Melange in the diff also loads
+`ocaml-code-writer`.
 
 ## L5 Converge — feature close
 

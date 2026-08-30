@@ -61,6 +61,9 @@ Memory commits start with `memory:`.
 - `curate-memory` — classify transcript + diff; never check off a task
 - `rebuild-context` — regenerate `.dash/context/` and `specs/INDEX.md`
 - `boot-dash` — bootstrap, ports, degraded modes
+- `ocaml-code-writer` — named list combinators; never fold_right a filter/map
+
+Skills teach how. `LOOPS.md` decides when.
 
 ## Boot
 
@@ -71,11 +74,12 @@ bun run bootstrap && bun run dev
 
 Reading surface (local): `http://127.0.0.1:8787`
 
-- `GET /` overview
+- `GET /` overview · `/roadmap` · `/backlog` · `/graph` · `/memory`
 - `GET /specs/:slug` one writing
 - `GET /constitution`
 - `POST /api/chat` visuals
 - `POST /api/task` checkbox write
+- `POST /api/sync` rebuild derived context
 - `GET /health`
 
 Personal identity and preferences stay in a separate vault. Not here.

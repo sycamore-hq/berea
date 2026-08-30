@@ -7,60 +7,68 @@ description: Bootstrap and run the local Reading (status dash) with no interacti
 
 The Reading is local. No accounts. No cloud PM tool.
 
-## Happy path
-
 ```text
 cd tools/status-dash
 bun run bootstrap && bun run dev
 ```
 
-Reading: `http://127.0.0.1:8787`
+No prompts. Exit 0 unless the SQLite migration failed.
 
-- `GET /` overview
-- `GET /specs/:slug` one writing
-- `GET /constitution`
-- `POST /api/chat` visuals
-- `POST /api/task` checkbox write
-- `GET /health`
+Reading: `http://127.0.0.1:8787`. Host is `0.0.0.0`.
 
-`PROJECT_ROOT` from `SPEC_ROOT`, else `../..`, else cwd.
-Port from `$PORT`, else 8787.
+## Env (the only ones)
 
-## Bootstrap must
+| Variable | Default | Meaning |
+|---|---|---|
+| `SPEC_ROOT` | `../..` from `tools/status-dash`, else cwd | Product repo root |
+| `PORT` | `8787` | Hono bind port |
+
+No undocumented env vars. Do not invent one so boot can "be flexible."
+
+## Scripts
+
+| Script | Does |
+|---|---|
+| `bun run bootstrap` | The list below |
+| `bun run dev` | Serve |
+| `bun run index` | Rebuild context + `specs/INDEX.md` + FTS |
+| `bun run check` | Deterministic checks against `fixtures/` |
+| `bun run build` | `dune build @melange` — regenerates `_generated/` |
+
+## What bootstrap does
 
 1. `bun install`
-2. `mkdir -p .dash`
-3. apply migrations
-4. if `specs/` missing, create it empty
-5. if constitution missing, write the stub that says replace via
-   spec-kit constitution
+2. `mkdir -p $SPEC_ROOT/.dash`
+3. Apply `overlay/migrations/`
+4. If `specs/` missing, create it empty
+5. If `.specify/memory/constitution.md` missing, write the stub that
+   says replace via spec-kit constitution
 6. `bun run index`
-7. write `.dash/BOOTSTRAP.md`
-8. exit 0 unless sqlite migration failed
-
-No prompts. No undocumented env vars.
+7. Write `.dash/BOOTSTRAP.md`
 
 ## Degraded
 
-| Missing | Still do |
+| Missing | Mode |
 |---|---|
-| `specify` CLI | operate on the files |
-| Melange / opam | run committed `_generated/` JS |
-| empty `specs/` | `/health` explicit empty, pages render |
-| no LLM key | deterministic chat router in the dash prompt |
+| Melange / opam | Run committed `_generated/` JS |
+| `specify` CLI | Parse the files anyway |
+| Empty `specs/` | `/health` reports `empty-specs`; pages still serve |
+| Stale context | Banner on `/`; `POST /api/sync` rebuilds |
+| No LLM key | Deterministic chat router |
 
 Do not require Markplane, Pinto, Docker-as-only-path, or a second
 backlog format.
 
+SQLite at `$SPEC_ROOT/.dash/dash.sqlite`. Gitignored. Rebuildable.
+
 ## Stop
 
-Bootstrap is not the place to design features. If the dash prompt in
-`docs/prompts/initial-status-dash.md` disagrees with running code,
-believe the prompt until the human changes it.
+Bootstrap is not the place to design features. If the writings and the
+running code disagree, say so and stop. Do not patch one to match the
+other from this skill.
 
 ## Gotchas
 
 - Binding to localhost only when the script says `0.0.0.0`.
-- Inventing env vars so boot can "be flexible."
-- Starting the dash from the wrong `PROJECT_ROOT` and indexing
-  an empty tree.
+- Starting the dash from the wrong `SPEC_ROOT` and indexing an empty tree.
+- Committing `.dash/`. It is derived.

@@ -20,22 +20,23 @@ specs/INDEX.md               # router across features
 
 ## How
 
-From repo root or `tools/status-dash`:
+From `tools/status-dash`:
 
 ```text
 bun run index
 ```
 
-or `POST /api/sync` if the dash is up.
+or `POST /api/sync` if the dash is up. `/api/index` is the same handler.
 
-If those commands do not exist yet, the dash is unbuilt. Say that.
-Point at `boot-dash`. Do not invent a parallel generator.
+If `_generated/` is missing, the dash is unbuilt. Say that. Point at
+`boot-dash`. Do not invent a parallel generator.
 
 ## After
 
 Confirm `summary.md` numbers match `specs/` directories and the
 checkboxes you can see. If they disagree, the generator is wrong.
-Do not "fix" the markdown by hand.
+Do not "fix" the markdown by hand — fix the generator under
+`tools/status-dash/src/`, and `bun run check` before believing it.
 
 ## Stop
 
