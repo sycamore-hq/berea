@@ -3,6 +3,8 @@
 Skills teach how. Loops decide when.
 If it isn’t in the files, it isn’t so.
 
+Explainer: `docs/loops.md`. This file stays the law.
+
 This is not CrossR. Do not speak Forge, AVRIL, or AXEL here.
 
 ## L0 Examine — always
