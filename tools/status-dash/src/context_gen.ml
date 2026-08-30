@@ -105,6 +105,12 @@ let in_flight features =
   List.filter (fun (f : feature) -> f.status = In_progress || f.status = Blocked) features
 ;;
 
+(* Specified means spec.md exists and plan.md does not. Such a feature has no
+   tasks, so it is absent from the ready queue and from blocked, and without
+   this it is absent from the summary entirely — invisible to the one
+   question the summary answers. *)
+let needs_plan features = List.filter (fun (f : feature) -> f.status = Specified) features
+
 type metrics =
   { m_features : int
   ; m_by_status : (string * int) list
@@ -146,6 +152,7 @@ let metrics_of (features : feature list) =
 let build_summary features blocked generated_at =
   let flight = in_flight features in
   let ready = ready_tasks features in
+  let unplanned = needs_plan features in
   let metrics = metrics_of features in
   let b = Buffer.create 1024 in
   let add s = Buffer.add_string b s in
@@ -203,7 +210,11 @@ let build_summary features blocked generated_at =
   add "\n";
   add_ln "## Ready queue";
   if ready = []
-  then add_ln "- none"
+  then
+    add_ln
+      (if unplanned = []
+       then "- none"
+       else "- none — write a plan first, see Needs a plan below")
   else
     List.iteri
       (fun i t ->
@@ -219,6 +230,21 @@ let build_summary features blocked generated_at =
          | _ -> []
        in
        take 8 ready);
+  add "\n";
+  add_ln "## Needs a plan";
+  if unplanned = []
+  then add_ln "- none"
+  else
+    List.iter
+      (fun (f : feature) ->
+         add
+           (Printf.sprintf
+              "- **%s** (%s) — %s. Write `specs/%s/plan.md`.\n"
+              f.slug
+              (horizon_to_string (horizon_of_feature f))
+              f.title
+              f.slug))
+      unplanned;
   add "\n";
   let now_specs = List.filter (fun f -> horizon_of_feature f = Now) features in
   add_ln "## Now horizon";

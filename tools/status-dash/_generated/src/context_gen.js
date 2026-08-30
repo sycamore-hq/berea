@@ -154,6 +154,12 @@ function in_flight(features) {
   }), features);
 }
 
+function needs_plan(features) {
+  return Stdlib__List.filter((function (f) {
+    return f.status === /* Specified */ 0;
+  }), features);
+}
+
 function metrics_of(features) {
   const by_status = Stdlib__List.fold_left((function (acc, f) {
     const k = Melange__Domain.status_to_string(f.status);
@@ -231,6 +237,7 @@ function metrics_of(features) {
 function build_summary(features, blocked, generated_at) {
   const flight = in_flight(features);
   const ready = ready_tasks(features);
+  const unplanned = needs_plan(features);
   const metrics = metrics_of(features);
   const b = Stdlib__Buffer.create(1024);
   Stdlib__Buffer.add_string(b, "<!-- generated: do not edit -->\n");
@@ -346,7 +353,8 @@ function build_summary(features, blocked, generated_at) {
   Stdlib__Buffer.add_string(b, "## Ready queue");
   Stdlib__Buffer.add_string(b, "\n");
   if (Caml_obj.caml_equal(ready, /* [] */ 0)) {
-    Stdlib__Buffer.add_string(b, "- none");
+    const s = Caml_obj.caml_equal(unplanned, /* [] */ 0) ? "- none" : "- none \xe2\x80\x94 write a plan first, see Needs a plan below";
+    Stdlib__Buffer.add_string(b, s);
     Stdlib__Buffer.add_string(b, "\n");
   } else {
     const take$1 = function (n, param) {
@@ -392,6 +400,57 @@ function build_summary(features, blocked, generated_at) {
     }), take$1(8, ready));
   }
   Stdlib__Buffer.add_string(b, "\n");
+  Stdlib__Buffer.add_string(b, "## Needs a plan");
+  Stdlib__Buffer.add_string(b, "\n");
+  if (Caml_obj.caml_equal(unplanned, /* [] */ 0)) {
+    Stdlib__Buffer.add_string(b, "- none");
+    Stdlib__Buffer.add_string(b, "\n");
+  } else {
+    Stdlib__List.iter((function (f) {
+      Stdlib__Buffer.add_string(b, Curry._4(Stdlib__Printf.sprintf({
+        TAG: /* Format */ 0,
+        _0: {
+          TAG: /* String_literal */ 11,
+          _0: "- **",
+          _1: {
+            TAG: /* String */ 2,
+            _0: /* No_padding */ 0,
+            _1: {
+              TAG: /* String_literal */ 11,
+              _0: "** (",
+              _1: {
+                TAG: /* String */ 2,
+                _0: /* No_padding */ 0,
+                _1: {
+                  TAG: /* String_literal */ 11,
+                  _0: ") \xe2\x80\x94 ",
+                  _1: {
+                    TAG: /* String */ 2,
+                    _0: /* No_padding */ 0,
+                    _1: {
+                      TAG: /* String_literal */ 11,
+                      _0: ". Write `specs/",
+                      _1: {
+                        TAG: /* String */ 2,
+                        _0: /* No_padding */ 0,
+                        _1: {
+                          TAG: /* String_literal */ 11,
+                          _0: "/plan.md`.\n",
+                          _1: /* End_of_format */ 0
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        _1: "- **%s** (%s) \xe2\x80\x94 %s. Write `specs/%s/plan.md`.\n"
+      }), f.slug, Melange__Domain.horizon_to_string(horizon_of_feature(f)), f.title, f.slug));
+    }), unplanned);
+  }
+  Stdlib__Buffer.add_string(b, "\n");
   const now_specs = Stdlib__List.filter((function (f) {
     return horizon_of_feature(f) === /* Now */ 0;
   }), features);
@@ -410,7 +469,7 @@ function build_summary(features, blocked, generated_at) {
   const match = metrics.m_by_horizon;
   Stdlib__Buffer.add_string(b, "## Metrics");
   Stdlib__Buffer.add_string(b, "\n");
-  const s = Curry._1(Stdlib__Printf.sprintf({
+  const s$1 = Curry._1(Stdlib__Printf.sprintf({
     TAG: /* Format */ 0,
     _0: {
       TAG: /* String_literal */ 11,
@@ -425,9 +484,9 @@ function build_summary(features, blocked, generated_at) {
     },
     _1: "- features: %d"
   }), metrics.m_features);
-  Stdlib__Buffer.add_string(b, s);
+  Stdlib__Buffer.add_string(b, s$1);
   Stdlib__Buffer.add_string(b, "\n");
-  const s$1 = Curry._2(Stdlib__Printf.sprintf({
+  const s$2 = Curry._2(Stdlib__Printf.sprintf({
     TAG: /* Format */ 0,
     _0: {
       TAG: /* String_literal */ 11,
@@ -452,9 +511,9 @@ function build_summary(features, blocked, generated_at) {
     },
     _1: "- open tasks: %d/%d"
   }), metrics.m_open_tasks, metrics.m_total_tasks);
-  Stdlib__Buffer.add_string(b, s$1);
+  Stdlib__Buffer.add_string(b, s$2);
   Stdlib__Buffer.add_string(b, "\n");
-  const s$2 = Curry._3(Stdlib__Printf.sprintf({
+  const s$3 = Curry._3(Stdlib__Printf.sprintf({
     TAG: /* Format */ 0,
     _0: {
       TAG: /* String_literal */ 11,
@@ -489,7 +548,7 @@ function build_summary(features, blocked, generated_at) {
     },
     _1: "- horizon now/next/later: %d/%d/%d"
   }), match[0], match[1], match[2]);
-  Stdlib__Buffer.add_string(b, s$2);
+  Stdlib__Buffer.add_string(b, s$3);
   Stdlib__Buffer.add_string(b, "\n");
   Stdlib__Buffer.add_string(b, "\n");
   return cap_tokens(Stdlib__Buffer.contents(b), 1000);
@@ -857,6 +916,7 @@ export {
   ready_tasks,
   blocked_tasks,
   in_flight,
+  needs_plan,
   metrics_of,
   build_summary,
   build_active,
