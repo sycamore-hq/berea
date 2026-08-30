@@ -1,0 +1,10 @@
+(include_subdirs unqualified)
+
+(melange.emit
+ (target _generated)
+ (alias melange)
+ (module_systems (es6 js))
+ (preprocess (pps melange.ppx))
+ (modules domain speckit memory_ml overlay context_gen views envelope
+   js_shims paths load_tree rebuild markdown html hono app check_ml
+   index_ml bootstrap_ml server))

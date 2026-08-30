@@ -1,0 +1,15 @@
+{
+  "name": "status-dash",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "bootstrap": "bun run _generated/src/Bootstrap_ml.js",
+    "dev": "bun run _generated/src/Server.js",
+    "index": "bun run _generated/src/Index_ml.js",
+    "check": "bun run _generated/src/Check_ml.js",
+    "build": "dune build @melange"
+  },
+  "dependencies": {
+    "hono": "^4.7.11"
+  }
+}
