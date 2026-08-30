@@ -1,4 +1,4 @@
-(* Entry: bun run _generated/Index.js — bun run index *)
+(* Entry: bun run index — _generated/src/index_ml.js *)
 
 let () =
   let root = Paths.resolve_project_root () in

@@ -3,10 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "bootstrap": "bun run _generated/src/Bootstrap_ml.js",
-    "dev": "bun run _generated/src/Server.js",
-    "index": "bun run _generated/src/Index_ml.js",
-    "check": "bun run _generated/src/Check_ml.js",
+    "bootstrap": "bun run _generated/src/bootstrap_ml.js",
+    "dev": "bun run _generated/src/server.js",
+    "index": "bun run _generated/src/index_ml.js",
+    "check": "bun run _generated/src/check_ml.js",
     "build": "dune build @melange"
   },
   "dependencies": {

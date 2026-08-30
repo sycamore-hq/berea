@@ -1,4 +1,4 @@
-(* Entry: bun run _generated/Bootstrap.js — zero-touch bootstrap *)
+(* Entry: bun run bootstrap — _generated/src/bootstrap_ml.js *)
 
 module F = Js_shims.Fs
 module P = Js_shims.Path

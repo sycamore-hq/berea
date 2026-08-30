@@ -1,5 +1,5 @@
-(* Entry: bun run _generated/Check.js — fixtures, envelope roundtrip,
-   checkbox edits, live route tests. *)
+(* Entry: bun run check — _generated/src/check_ml.js. Fixtures, envelope
+   roundtrip, checkbox edits, live route tests. *)
 
 module F = Js_shims.Fs
 module P = Js_shims.Path

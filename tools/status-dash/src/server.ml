@@ -1,4 +1,4 @@
-(* Entry: bun run _generated/Server.js *)
+(* Entry: bun run dev — _generated/src/server.js *)
 
 let () =
   let root = Paths.resolve_project_root () in
