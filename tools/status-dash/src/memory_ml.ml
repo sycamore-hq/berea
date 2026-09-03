@@ -20,7 +20,7 @@ type note =
   ; supersedes : string option
   ; source : string option
   ; confidence : string option
-  ; status : status
+  ; status : status option
   ; kind : kind
   ; body : string
   }
@@ -40,12 +40,24 @@ let status_to_string = function
   | Proposal -> "proposal"
 ;;
 
-let normalize_status = function
-  | Some "active" -> Active
-  | Some "superseded" -> Superseded
-  | Some "rejected" -> Rejected
-  | Some "proposal" -> Proposal
-  | _ -> Active
+let status_of_string = function
+  | "active" -> Some Active
+  | "superseded" -> Some Superseded
+  | "rejected" -> Some Rejected
+  | "proposal" -> Some Proposal
+  | _ -> None
+;;
+
+let status_label = function
+  | Some s -> status_to_string s
+  | None -> "unknown"
+;;
+
+(* Deny-closed: only active notes in the three reviewed trees are facts. *)
+let is_reviewed note =
+  match note.kind, note.status with
+  | (Decision | Regression | Convention), Some Active -> true
+  | _ -> false
 ;;
 
 let normalize_confidence = function
@@ -72,6 +84,10 @@ let kind_from_path path =
 ;;
 
 let is_session_path path = kind_from_path path = Session
+
+let keep_loaded ~include_sessions note =
+  is_reviewed note || (include_sessions && is_session_path note.path)
+;;
 
 (* Skip sessions by default when indexing FTS. *)
 let should_index ?(include_sessions = false) path =
@@ -104,7 +120,9 @@ let excerpt ?(n = 240) body =
 let parse_memory_note path text =
   let attrs, body = Speckit.parse_frontmatter text in
   let a key = Speckit.attr attrs key in
-  let status = normalize_status (Option.map String.lowercase_ascii (a "status")) in
+  let status =
+    Option.bind (a "status") (fun raw -> status_of_string (String.lowercase_ascii raw))
+  in
   let confidence =
     normalize_confidence (Option.map String.lowercase_ascii (a "confidence"))
   in

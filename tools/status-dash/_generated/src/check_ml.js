@@ -12,6 +12,7 @@ import * as Melange__Domain from "./domain.js";
 import * as Melange__Envelope from "./envelope.js";
 import * as Melange__Hono from "./hono.js";
 import * as Melange__Js_shims from "./js_shims.js";
+import * as Melange__Memory_ml from "./memory_ml.js";
 import * as Melange__Paths from "./paths.js";
 import * as Melange__Rebuild from "./rebuild.js";
 import * as Melange__Speckit from "./speckit.js";
@@ -282,30 +283,57 @@ function sync_checks(param) {
       hd: "envelope roundtrip ok: " + round._0,
       tl: /* [] */ 0
     });
-    return;
-  }
-  const match = round._0.e_visuals;
-  if (match) {
-    return eq_string(match.hd.v_kind, "summary", "roundtrip kind");
   } else {
-    failures.contents = Stdlib.$at(failures.contents, {
-      hd: "roundtrip kind: no visuals",
-      tl: /* [] */ 0
-    });
-    return;
+    const match = round._0.e_visuals;
+    if (match) {
+      eq_string(match.hd.v_kind, "summary", "roundtrip kind");
+    } else {
+      failures.contents = Stdlib.$at(failures.contents, {
+        hd: "roundtrip kind: no visuals",
+        tl: /* [] */ 0
+      });
+    }
   }
+  const note_md = function (status) {
+    return "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\n" + (status + "---\n\n# Title\n\nbody\n");
+  };
+  const note_of = function (path, status) {
+    return Melange__Memory_ml.parse_memory_note(path, note_md(status));
+  };
+  const reviewed = function (path, status) {
+    return Melange__Memory_ml.is_reviewed(note_of(path, status));
+  };
+  assert_(reviewed("memory/conventions/ok.md", "status: active\n"), "active convention is reviewed");
+  assert_(!reviewed("memory/conventions/ok.md", ""), "missing status is not reviewed");
+  assert_(!reviewed("memory/decisions/p.md", "status: proposal\n"), "proposal is not reviewed");
+  assert_(!reviewed("memory/regressions/r.md", "status: rejected\n"), "rejected is not reviewed");
+  assert_(!reviewed("memory/conventions/s.md", "status: superseded\n"), "superseded is not reviewed");
+  assert_(!reviewed("memory/sessions/x.md", "status: proposal\n"), "session is not reviewed");
+  assert_(!reviewed("memory/orphan.md", "status: active\n"), "outside trees is not reviewed");
+  assert_(note_of("memory/conventions/x.md", "").status === undefined, "missing status is None");
+  eq_string(Melange__Memory_ml.status_label(undefined), "unknown", "status_label none");
+}
+
+function write_note(root, tree, name, body) {
+  const dir = Melange__Js_shims.Path.join3(root, "memory", tree);
+  Melange__Js_shims.Fs.mkdir_p(dir);
+  Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join2(dir, name), body);
 }
 
 function make_tmp_project(param) {
   const tmp = Melange__Js_shims.Path.join2(Nodeos.tmpdir(), "dash-check-" + crypto.randomUUID());
   Melange__Js_shims.Fs.mkdir_p(Melange__Js_shims.Path.join3(tmp, ".specify", "memory"));
   Melange__Js_shims.Fs.mkdir_p(Melange__Js_shims.Path.join3(tmp, "specs", "001-example"));
-  Melange__Js_shims.Fs.mkdir_p(Melange__Js_shims.Path.join3(tmp, "memory", "conventions"));
   Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join4(tmp, ".specify", "memory", "constitution.md"), Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join2(Melange__Paths.fixtures_dir(), "constitution.md")));
   Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join4(tmp, "specs", "001-example", "spec.md"), Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(Melange__Paths.fixtures_dir(), "specs", "001-example", "spec.md")));
   Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join4(tmp, "specs", "001-example", "plan.md"), Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(Melange__Paths.fixtures_dir(), "specs", "001-example", "plan.md")));
   Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join4(tmp, "specs", "001-example", "tasks.md"), Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(Melange__Paths.fixtures_dir(), "specs", "001-example", "tasks.md")));
-  Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join4(tmp, "memory", "conventions", "testing.md"), "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\nstatus: active\n---\n\n# Testing the overlay\n\nFTS should find this convention. Point at the constitution; do not copy it.\n");
+  write_note(tmp, "conventions", "testing.md", "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\nstatus: active\n---\n\n# Testing the overlay\n\nFTS should find this convention. Point at the constitution; do not copy it.\n");
+  write_note(tmp, "sessions", "proposal.md", "---\nas_of: 2026-08-28\nsource: session/check\nconfidence: low\nstatus: proposal\n---\n\n# Session proposal\n\nSESSIONONLYTOKEN must not be a fact.\n");
+  write_note(tmp, "decisions", "pending.md", "---\nas_of: 2026-08-28\nsource: human\nconfidence: medium\nstatus: proposal\n---\n\n# Pending decision\n\nPROPOSALONLYTOKEN must not be a fact.\n");
+  write_note(tmp, "regressions", "dead.md", "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\nstatus: rejected\n---\n\n# Rejected regression\n\nREJECTEDONLYTOKEN must not be a fact.\n");
+  write_note(tmp, "conventions", "old.md", "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\nstatus: superseded\n---\n\n# Old convention\n\nSUPERSEDEDONLYTOKEN must not be a fact.\n");
+  write_note(tmp, "conventions", "bare.md", "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\n---\n\n# Bare convention\n\nNOSTATUSTOKEN must not be a fact.\n");
   Melange__Rebuild.rebuild_all(tmp);
   return tmp;
 }
@@ -409,6 +437,29 @@ Melange__Hono.request_get_p(app, "/health").then(function (prim) {
 }).then(function (mem) {
   const k = first_visual_kind(mem);
   eq_string(k !== undefined ? k : "", "memory", "memory visual");
+  return Melange__Hono.request_get_p(app, "/memory").then(function (prim) {
+    return prim.text();
+  });
+}).then(function (memory_page) {
+  assert_(Melange__Speckit.contains(memory_page, "Testing the overlay"), "reviewed convention on /memory");
+  assert_(Melange__Speckit.contains(memory_page, "active"), "/memory shows status");
+  assert_(!Melange__Speckit.contains(memory_page, "SESSIONONLYTOKEN"), "session token absent from /memory");
+  assert_(!Melange__Speckit.contains(memory_page, "PROPOSALONLYTOKEN"), "proposal token absent from /memory");
+  assert_(!Melange__Speckit.contains(memory_page, "REJECTEDONLYTOKEN"), "rejected token absent from /memory");
+  assert_(!Melange__Speckit.contains(memory_page, "SUPERSEDEDONLYTOKEN"), "superseded token absent from /memory");
+  assert_(!Melange__Speckit.contains(memory_page, "NOSTATUSTOKEN"), "missing-status token absent from /memory");
+  return Melange__Hono.request_get_p(app, "/api/memory?q=overlay").then(function (prim) {
+    return prim.json();
+  });
+}).then(function (overlay_hits) {
+  const hits = json_list(get_json(overlay_hits, "hits"));
+  assert_(Caml_obj.caml_notequal(hits, /* [] */ 0), "FTS finds the active convention");
+  return Melange__Hono.request_get_p(app, "/api/memory?q=SESSIONONLYTOKEN").then(function (prim) {
+    return prim.json();
+  });
+}).then(function (session_hits) {
+  const hits = json_list(get_json(session_hits, "hits"));
+  assert_(Caml_obj.caml_equal(hits, /* [] */ 0), "FTS misses the session token");
   return Promise.resolve(finish());
 }).catch(function (e) {
   const msg = Stdlib__Option.value(e.message, "unknown JS error");

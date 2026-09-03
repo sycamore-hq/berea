@@ -22,6 +22,28 @@ let hit_json_list (hits : Overlay.memory_hit list) =
 
 let string_of_hits hits = J.arr (hit_json_list hits)
 
+let note_excerpt body =
+  if String.length body > 200 then String.sub body 0 200 else body
+
+let memory_note_item (n : Load_tree.memory_note) =
+  "<li><strong>" ^ Html.esc n.note_title ^ "</strong> <code>"
+  ^ Html.esc n.note_path
+  ^ "</code>\n<span class=\"muted\">"
+  ^ Html.esc (Memory_ml.kind_to_string n.note_kind)
+  ^ " · "
+  ^ Html.esc (Memory_ml.status_label n.note_status)
+  ^ " · "
+  ^ Html.esc (Option.value n.note_as_of ~default:"")
+  ^ "</span>\n<p>"
+  ^ Html.esc (note_excerpt n.note_body)
+  ^ "</p></li>"
+
+let memory_items_html = function
+  | [] ->
+    "<p class=\"empty\">No reviewed notes. Action agents append <code>memory/sessions/</code> only. Curator proposes the rest.</p>"
+  | notes ->
+    "<ul>" ^ String.concat "" (List.map memory_note_item notes) ^ "</ul>"
+
 type state = { st_tree : Load_tree.loaded_tree; st_db : Overlay.db }
 
 let horizon_label (f : feature) =
@@ -405,32 +427,9 @@ let create_app root =
 
   H.on_get app "/memory" (fun c ->
       let notes = Load_tree.load_memory_notes paths.Paths.memory in
-      let items =
-        if notes = [] then
-          "<p class=\"empty\">No reviewed notes. Action agents append <code>memory/sessions/</code> only. Curator proposes the rest.</p>"
-        else
-          "<ul>"
-          ^ String.concat
-              ""
-              (List.map
-                 (fun (n : Load_tree.memory_note) ->
-                   "<li><strong>" ^ Html.esc n.note_title ^ "</strong> <code>"
-                   ^ Html.esc n.note_path
-                   ^ "</code>\n<span class=\"muted\">"
-                   ^ Html.esc (Memory_ml.kind_to_string n.note_kind)
-                   ^ " · "
-                   ^ Html.esc (match n.note_as_of with Some s -> s | None -> "")
-                   ^ "</span>\n<p>"
-                   ^ Html.esc
-                       (let b = n.note_body in
-                        if String.length b > 200 then String.sub b 0 200 else b)
-                   ^ "</p></li>")
-                 notes)
-          ^ "</ul>"
-      in
       let body =
         "<h1>Memory</h1>\n<p>Read-only. Constitution is not copied here; point at it.</p>\n"
-        ^ items
+        ^ memory_items_html notes
       in
       H.html_resp c (page_html "Memory" "/memory" body));
 
