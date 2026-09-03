@@ -83,3 +83,11 @@ Reading surface (local): `http://127.0.0.1:8787`
 - `GET /health`
 
 Personal identity and preferences stay in a separate vault. Not here.
+
+## Cursor Cloud
+
+Agents started on this repo use `.cursor/environment.json` + `.cursor/Dockerfile`
+(OCaml 5.2, dune 3.24.2, Melange 7.0.1-52, ocamlformat 0.29.0, bun). That file
+wins over a personal or team dashboard environment. After checkout, `install`
+runs `.cursor/install.sh` (`bun install` in `tools/status-dash`). Boot the
+Reading as under Boot.
