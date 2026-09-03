@@ -14,4 +14,4 @@ if ! command -v bun >/dev/null 2>&1; then
 fi
 
 cd tools/status-dash
-bun install
+bun install --frozen-lockfile
