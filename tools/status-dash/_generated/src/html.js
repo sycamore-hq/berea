@@ -170,7 +170,6 @@ function feature_table(cards, empty) {
     return "<p class=\"empty\">" + (Melange__Markdown.esc(empty) + "</p>");
   }
   const rows = Stdlib__String.concat("", Stdlib__List.map((function (c) {
-    const h = c.horizon;
     return Curry._7(Stdlib__Printf.sprintf({
       TAG: /* Format */ 0,
       _0: {
@@ -239,7 +238,7 @@ function feature_table(cards, empty) {
         }
       },
       _1: "<tr>\n<td><a href=\"/specs/%s\">%s</a></td>\n<td>%s</td>\n<td>%s</td>\n<td>%s</td>\n<td>%d/%d</td>\n</tr>"
-    }), Melange__Markdown.esc(c.slug), Melange__Markdown.esc(c.slug), Melange__Markdown.esc(c.title), status_pill(Melange__Domain.status_to_string(c.status)), h !== undefined ? Melange__Markdown.esc(Melange__Domain.horizon_to_string(h)) : "\xe2\x80\x94", c.open_tasks, c.total_tasks);
+    }), Melange__Markdown.esc(c.slug), Melange__Markdown.esc(c.slug), Melange__Markdown.esc(c.title), status_pill(Melange__Domain.status_to_string(c.status)), Melange__Markdown.esc(Melange__Domain.horizon_to_string(c.horizon)), c.open_tasks, c.total_tasks);
   }), cards));
   return "<table>\n<thead><tr><th>ID</th><th>Title</th><th>Status</th><th>Horizon</th><th>Tasks</th></tr></thead>\n<tbody>" + (rows + "</tbody>\n</table>");
 }

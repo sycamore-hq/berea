@@ -131,14 +131,14 @@ function json_list(json) {
 function sync_checks(param) {
   const fixtures = Melange__Paths.fixtures_dir();
   const constitution_text = Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join2(fixtures, "constitution.md"));
-  const spec_text = Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(fixtures, "specs", "001-example", "spec.md"));
-  const tasks_text = Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(fixtures, "specs", "001-example", "tasks.md"));
-  const plan_text = Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(fixtures, "specs", "001-example", "plan.md"));
+  const spec_text = Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(fixtures, "specs", "000-check-fixture", "spec.md"));
+  const tasks_text = Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(fixtures, "specs", "000-check-fixture", "tasks.md"));
+  const plan_text = Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(fixtures, "specs", "000-check-fixture", "plan.md"));
   const constitution = Melange__Speckit.parse_constitution(constitution_text);
   assert_(constitution.title !== "", "constitution has a title");
   assert_(!Melange__Speckit.contains(constitution.body, "memory/decisions"), "constitution is not a memory dump");
   const feature = Melange__Speckit.assemble_feature({
-    fi_slug: "001-example",
+    fi_slug: "000-check-fixture",
     fi_spec_md: spec_text,
     fi_plan_md: plan_text,
     fi_tasks_md: tasks_text,
@@ -167,6 +167,16 @@ function sync_checks(param) {
   });
   eq_string(Melange__Domain.status_to_string(specified.status), "specified", "no plan \xe2\x86\x92 specified");
   eq_string(Melange__Domain.horizon_to_string(specified.inferred_horizon), "next", "specified infers next");
+  const done_now = Melange__Speckit.assemble_feature({
+    fi_slug: "009-done",
+    fi_spec_md: "---\nhorizon: now\n---\n\n# Done\n",
+    fi_plan_md: "# Plan\n\n## Constitution Check\n\n- [x] ok\n",
+    fi_tasks_md: "- [x] T001 finished\n",
+    fi_siblings: /* [] */ 0,
+    fi_gate_failing: false
+  });
+  eq_string(Melange__Domain.status_to_string(done_now.status), "done", "all tasks \xe2\x86\x92 done");
+  eq_string(Melange__Domain.horizon_to_string(done_now.inferred_horizon), "later", "Done + horizon: now \xe2\x86\x92 Later");
   const specified_summary = Melange__Context_gen.build_summary({
     hd: specified,
     tl: /* [] */ 0
@@ -180,7 +190,7 @@ function sync_checks(param) {
   }, /* [] */ 0, "now");
   assert_(Melange__Speckit.contains(planned_summary, "## Needs a plan\n- none"), "nothing unplanned says none");
   assert_(true, "OCaml literals are byte strings");
-  const parsed = Melange__Speckit.parse_tasks_markdown(tasks_text, "001-example");
+  const parsed = Melange__Speckit.parse_tasks_markdown(tasks_text, "000-check-fixture");
   assert_(Caml_obj.caml_notequal(parsed.edges, /* [] */ 0), "task order produces edges");
   const flipped = Melange__Speckit.set_task_checkbox(tasks_text, "T002", true);
   if (flipped.TAG === /* Ok */ 0) {
@@ -205,7 +215,7 @@ function sync_checks(param) {
   }
   const kind_of = function (m) {
     const match = Melange__Envelope.classify({
-      hd: "001-example",
+      hd: "000-check-fixture",
       tl: /* [] */ 0
     }, m);
     if (/* tag */ typeof match !== "object" && typeof match !== "function") {
@@ -239,8 +249,8 @@ function sync_checks(param) {
   eq_string(kind_of("show the roadmap"), "roadmap", "roadmap");
   eq_string(kind_of("backlog please"), "backlog", "backlog");
   eq_string(kind_of("constitution"), "constitution", "constitution");
-  eq_string(kind_of("001-example"), "spec", "slug \xe2\x86\x92 spec");
-  eq_string(kind_of("look at T012 in 001-example"), "task", "task ref");
+  eq_string(kind_of("000-check-fixture"), "spec", "slug \xe2\x86\x92 spec");
+  eq_string(kind_of("look at T012 in 000-check-fixture"), "task", "task ref");
   eq_string(kind_of("why did we decide that"), "memory", "memory");
   const catalog = Melange__Views.catalog_of({
     hd: feature,
@@ -252,7 +262,7 @@ function sync_checks(param) {
   }, /* [] */ 0);
   const envelope_json = function (m) {
     return Melange__Envelope.encode_envelope(Melange__Envelope.envelope_for(Melange__Envelope.classify({
-      hd: "001-example",
+      hd: "000-check-fixture",
       tl: /* [] */ 0
     }, m), catalog));
   };
@@ -299,12 +309,12 @@ function sync_checks(param) {
 function make_tmp_project(param) {
   const tmp = Melange__Js_shims.Path.join2(Nodeos.tmpdir(), "dash-check-" + crypto.randomUUID());
   Melange__Js_shims.Fs.mkdir_p(Melange__Js_shims.Path.join3(tmp, ".specify", "memory"));
-  Melange__Js_shims.Fs.mkdir_p(Melange__Js_shims.Path.join3(tmp, "specs", "001-example"));
+  Melange__Js_shims.Fs.mkdir_p(Melange__Js_shims.Path.join3(tmp, "specs", "000-check-fixture"));
   Melange__Js_shims.Fs.mkdir_p(Melange__Js_shims.Path.join3(tmp, "memory", "conventions"));
   Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join4(tmp, ".specify", "memory", "constitution.md"), Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join2(Melange__Paths.fixtures_dir(), "constitution.md")));
-  Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join4(tmp, "specs", "001-example", "spec.md"), Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(Melange__Paths.fixtures_dir(), "specs", "001-example", "spec.md")));
-  Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join4(tmp, "specs", "001-example", "plan.md"), Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(Melange__Paths.fixtures_dir(), "specs", "001-example", "plan.md")));
-  Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join4(tmp, "specs", "001-example", "tasks.md"), Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(Melange__Paths.fixtures_dir(), "specs", "001-example", "tasks.md")));
+  Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join4(tmp, "specs", "000-check-fixture", "spec.md"), Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(Melange__Paths.fixtures_dir(), "specs", "000-check-fixture", "spec.md")));
+  Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join4(tmp, "specs", "000-check-fixture", "plan.md"), Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(Melange__Paths.fixtures_dir(), "specs", "000-check-fixture", "plan.md")));
+  Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join4(tmp, "specs", "000-check-fixture", "tasks.md"), Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(Melange__Paths.fixtures_dir(), "specs", "000-check-fixture", "tasks.md")));
   Melange__Js_shims.Fs.write_file_sync(Melange__Js_shims.Path.join4(tmp, "memory", "conventions", "testing.md"), "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\nstatus: active\n---\n\n# Testing the overlay\n\nFTS should find this convention. Point at the constitution; do not copy it.\n");
   Melange__Rebuild.rebuild_all(tmp);
   return tmp;
@@ -348,7 +358,7 @@ Melange__Hono.request_get_p(app, "/health").then(function (prim) {
     return prim.text();
   });
 }).then(function (home) {
-  assert_(Melange__Speckit.contains(home, "001-example"), "overview lists fixture spec");
+  assert_(Melange__Speckit.contains(home, "000-check-fixture"), "overview lists fixture spec");
   assert_(Melange__Speckit.contains(home, "What should we work on?"), "overview shows generated summary");
   return Melange__Hono.request_get_p(app, "/specs/INDEX.md").then(Melange__Hono.res_bytes);
 }).then(function (index_wire) {
@@ -358,8 +368,8 @@ Melange__Hono.request_get_p(app, "/health").then(function (prim) {
     return prim.text();
   });
 }).then(function (specs_page) {
-  assert_(Melange__Speckit.contains(specs_page, "001-example"), "GET /specs lists directories");
-  return Melange__Hono.request_get_p(app, "/specs/001-example").then(function (prim) {
+  assert_(Melange__Speckit.contains(specs_page, "000-check-fixture"), "GET /specs lists directories");
+  return Melange__Hono.request_get_p(app, "/specs/000-check-fixture").then(function (prim) {
     return prim.text();
   });
 }).then(function (detail) {
@@ -382,10 +392,10 @@ Melange__Hono.request_get_p(app, "/health").then(function (prim) {
   });
 }).then(function (before) {
   const has_t002 = Stdlib__List.exists((function (item) {
-    return get_str(item, "ref") === "001-example#T002";
+    return get_str(item, "ref") === "000-check-fixture#T002";
   }), json_list(get_json(before, "items")));
   assert_(has_t002, "T002 starts open");
-  return Melange__Hono.request_post_p(app, "/api/task", "{\"ref\":\"001-example#T002\",\"done\":true}").then(function (prim) {
+  return Melange__Hono.request_post_p(app, "/api/task", "{\"ref\":\"000-check-fixture#T002\",\"done\":true}").then(function (prim) {
     return prim.json();
   });
 }).then(function (toggled) {
@@ -395,10 +405,10 @@ Melange__Hono.request_get_p(app, "/health").then(function (prim) {
   });
 }).then(function (after) {
   const still_t002 = Stdlib__List.exists((function (item) {
-    return get_str(item, "ref") === "001-example#T002";
+    return get_str(item, "ref") === "000-check-fixture#T002";
   }), json_list(get_json(after, "items")));
   assert_(!still_t002, "T002 left the backlog after toggle + sync");
-  const tasks_after = Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(tmp, "specs", "001-example", "tasks.md"));
+  const tasks_after = Melange__Js_shims.Fs.read_file_sync(Melange__Js_shims.Path.join4(tmp, "specs", "000-check-fixture", "tasks.md"));
   assert_(Melange__Speckit.contains(tasks_after, "- [x] T002"), "checkbox written to tasks.md");
   const index_md = Melange__Js_shims.Fs.read_file_bytes(Melange__Js_shims.Path.join3(tmp, "specs", "INDEX.md"));
   assert_(!Melange__Speckit.contains(index_md, "\xc3\xa2\xc2\x80"), "no double-encoded UTF-8 on disk in INDEX.md");

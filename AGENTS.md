@@ -17,7 +17,8 @@ This is not CrossR. Do not speak Forge, AVRIL, or AXEL here.
 - Index: `specs/INDEX.md`
 - Generated context (derived, do not hand-edit): `.dash/context/summary.md`
 - Reviewed memory: `memory/README.md`
-- Skills: `.agents/skills/<name>/SKILL.md`
+- Skills: `.agents/skills/<name>/SKILL.md` (canonical). `.claude/skills/<name>`
+  is a symlink so Claude Code loads the same directory.
 - Loops: `LOOPS.md`
 - House README: `README.md`
 
@@ -52,6 +53,12 @@ Curator proposes memory or spec patches. Human merges.
 Memory commits start with `memory:`.
 
 ## Skills
+
+Each name below is a directory. Canonical path:
+`.agents/skills/<name>/SKILL.md`. Claude Code follows
+`.claude/skills/<name>` → that directory. Cursor reads `.agents/`
+directly. A skill has loaded when that `SKILL.md` is the file you
+are following.
 
 - `examine` — cite or withdraw; run first
 - `read-status` — morning question, named slug or `T0xx`, chat visuals

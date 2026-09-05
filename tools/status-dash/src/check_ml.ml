@@ -55,9 +55,9 @@ let json_list json =
 let sync_checks () =
   let fixtures = Paths.fixtures_dir () in
   let constitution_text = F.read_file_sync (P.join2 fixtures "constitution.md") in
-  let spec_text = F.read_file_sync (P.join4 fixtures "specs" "001-example" "spec.md") in
-  let tasks_text = F.read_file_sync (P.join4 fixtures "specs" "001-example" "tasks.md") in
-  let plan_text = F.read_file_sync (P.join4 fixtures "specs" "001-example" "plan.md") in
+  let spec_text = F.read_file_sync (P.join4 fixtures "specs" "000-check-fixture" "spec.md") in
+  let tasks_text = F.read_file_sync (P.join4 fixtures "specs" "000-check-fixture" "tasks.md") in
+  let plan_text = F.read_file_sync (P.join4 fixtures "specs" "000-check-fixture" "plan.md") in
 
   let constitution = Speckit.parse_constitution constitution_text in
   assert_ (constitution.Speckit.title <> "") "constitution has a title";
@@ -67,7 +67,7 @@ let sync_checks () =
 
   let feature =
     Speckit.assemble_feature
-      { fi_slug = "001-example";
+      { fi_slug = "000-check-fixture";
         fi_spec_md = spec_text;
         fi_plan_md = Some plan_text;
         fi_tasks_md = Some tasks_text;
@@ -102,6 +102,22 @@ let sync_checks () =
   eq_string (status_to_string specified.status) "specified" "no plan → specified";
   eq_string (horizon_to_string specified.inferred_horizon) "next" "specified infers next";
 
+  let done_now =
+    Speckit.assemble_feature
+      { fi_slug = "009-done"
+      ; fi_spec_md = "---\nhorizon: now\n---\n\n# Done\n"
+      ; fi_plan_md = Some "# Plan\n\n## Constitution Check\n\n- [x] ok\n"
+      ; fi_tasks_md = Some "- [x] T001 finished\n"
+      ; fi_siblings = []
+      ; fi_gate_failing = false
+      }
+  in
+  eq_string (status_to_string done_now.status) "done" "all tasks → done";
+  eq_string
+    (horizon_to_string done_now.inferred_horizon)
+    "later"
+    "Done + horizon: now → Later";
+
   (* a specified feature owns no tasks, so the summary must still name it *)
   let specified_summary = Context_gen.build_summary [ specified ] [] "now" in
   assert_
@@ -121,7 +137,7 @@ let sync_checks () =
   (* bytes, not code points: an em dash is three bytes wide *)
   assert_ (String.length "—" = 3) "OCaml literals are byte strings";
 
-  let parsed = Speckit.parse_tasks_markdown tasks_text "001-example" in
+  let parsed = Speckit.parse_tasks_markdown tasks_text "000-check-fixture" in
   assert_ (parsed.Speckit.edges <> []) "task order produces edges";
 
   let flipped = Speckit.set_task_checkbox tasks_text "T002" true in
@@ -139,7 +155,7 @@ let sync_checks () =
    | Ok md -> assert_ (Speckit.contains md "- [ ] T002") "checkbox restore"
    | Error e -> failures := !failures @ [ "checkbox restore: " ^ e ]);
 
-  let classify m = Envelope.classify ~slugs:[ "001-example" ] m in
+  let classify m = Envelope.classify ~slugs:[ "000-check-fixture" ] m in
   let kind_of m =
     match classify m with
     | E.Summary -> "summary"
@@ -157,8 +173,8 @@ let sync_checks () =
   eq_string (kind_of "show the roadmap") "roadmap" "roadmap";
   eq_string (kind_of "backlog please") "backlog" "backlog";
   eq_string (kind_of "constitution") "constitution" "constitution";
-  eq_string (kind_of "001-example") "spec" "slug → spec";
-  eq_string (kind_of "look at T012 in 001-example") "task" "task ref";
+  eq_string (kind_of "000-check-fixture") "spec" "slug → spec";
+  eq_string (kind_of "look at T012 in 000-check-fixture") "task" "task ref";
   eq_string (kind_of "why did we decide that") "memory" "memory";
 
   let catalog =
@@ -200,16 +216,16 @@ let make_tmp_project () =
       ("dash-check-" ^ Js_shims.Crypto.random_uuid ())
   in
   F.mkdir_p (P.join3 tmp ".specify" "memory");
-  F.mkdir_p (P.join3 tmp "specs" "001-example");
+  F.mkdir_p (P.join3 tmp "specs" "000-check-fixture");
   F.mkdir_p (P.join3 tmp "memory" "conventions");
   F.write_file_sync (P.join4 tmp ".specify" "memory" "constitution.md")
     (F.read_file_sync (P.join2 (Paths.fixtures_dir ()) "constitution.md"));
-  F.write_file_sync (P.join4 tmp "specs" "001-example" "spec.md")
-    (F.read_file_sync (P.join4 (Paths.fixtures_dir ()) "specs" "001-example" "spec.md"));
-  F.write_file_sync (P.join4 tmp "specs" "001-example" "plan.md")
-    (F.read_file_sync (P.join4 (Paths.fixtures_dir ()) "specs" "001-example" "plan.md"));
-  F.write_file_sync (P.join4 tmp "specs" "001-example" "tasks.md")
-    (F.read_file_sync (P.join4 (Paths.fixtures_dir ()) "specs" "001-example" "tasks.md"));
+  F.write_file_sync (P.join4 tmp "specs" "000-check-fixture" "spec.md")
+    (F.read_file_sync (P.join4 (Paths.fixtures_dir ()) "specs" "000-check-fixture" "spec.md"));
+  F.write_file_sync (P.join4 tmp "specs" "000-check-fixture" "plan.md")
+    (F.read_file_sync (P.join4 (Paths.fixtures_dir ()) "specs" "000-check-fixture" "plan.md"));
+  F.write_file_sync (P.join4 tmp "specs" "000-check-fixture" "tasks.md")
+    (F.read_file_sync (P.join4 (Paths.fixtures_dir ()) "specs" "000-check-fixture" "tasks.md"));
   F.write_file_sync (P.join4 tmp "memory" "conventions" "testing.md")
     "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\nstatus: active\n---\n\n# Testing the overlay\n\nFTS should find this convention. Point at the constitution; do not copy it.\n";
   ignore (Rebuild.rebuild_all tmp);
@@ -249,7 +265,7 @@ let _ =
          H.request_get_p app "/" |> then_ H.res_text)
   |> then_
        (fun home ->
-         assert_ (Speckit.contains home "001-example") "overview lists fixture spec";
+         assert_ (Speckit.contains home "000-check-fixture") "overview lists fixture spec";
          assert_ (Speckit.contains home "What should we work on?") "overview shows generated summary";
          H.request_get_p app "/specs/INDEX.md" |> then_ H.res_bytes)
   |> then_
@@ -263,8 +279,8 @@ let _ =
          H.request_get_p app "/specs" |> then_ H.res_text)
   |> then_
        (fun specs_page ->
-         assert_ (Speckit.contains specs_page "001-example") "GET /specs lists directories";
-         H.request_get_p app "/specs/001-example" |> then_ H.res_text)
+         assert_ (Speckit.contains specs_page "000-check-fixture") "GET /specs lists directories";
+         H.request_get_p app "/specs/000-check-fixture" |> then_ H.res_text)
   |> then_
        (fun detail ->
          assert_ (Speckit.contains detail "spec.md" || Speckit.contains detail "Example") "spec body";
@@ -288,10 +304,10 @@ let _ =
        (fun before ->
          let has_t002 =
            json_list (get_json before "items")
-           |> List.exists (fun item -> get_str item "ref" = "001-example#T002")
+           |> List.exists (fun item -> get_str item "ref" = "000-check-fixture#T002")
          in
          assert_ has_t002 "T002 starts open";
-         H.request_post_p app "/api/task" "{\"ref\":\"001-example#T002\",\"done\":true}" |> then_ H.res_json)
+         H.request_post_p app "/api/task" "{\"ref\":\"000-check-fixture#T002\",\"done\":true}" |> then_ H.res_json)
   |> then_
        (fun toggled ->
          assert_ (get_bool toggled "ok") "task toggle ok";
@@ -300,10 +316,10 @@ let _ =
        (fun after ->
          let still_t002 =
            json_list (get_json after "items")
-           |> List.exists (fun item -> get_str item "ref" = "001-example#T002")
+           |> List.exists (fun item -> get_str item "ref" = "000-check-fixture#T002")
          in
          assert_ (not still_t002) "T002 left the backlog after toggle + sync";
-         let tasks_after = F.read_file_sync (P.join4 tmp "specs" "001-example" "tasks.md") in
+         let tasks_after = F.read_file_sync (P.join4 tmp "specs" "000-check-fixture" "tasks.md") in
          assert_ (Speckit.contains tasks_after "- [x] T002") "checkbox written to tasks.md";
          let index_md = F.read_file_bytes (P.join3 tmp "specs" "INDEX.md") in
          assert_

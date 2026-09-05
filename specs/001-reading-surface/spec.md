@@ -3,7 +3,7 @@ horizon: now
 priority: high
 ---
 
-# Example: the Reading surface
+# The Reading surface
 
 A local dashboard and chat over this repo's Spec Kit writings. Two ways to
 look at the same work; a third thing agents can trust (reviewed memory).
@@ -33,5 +33,5 @@ memory in the browser.
 1. A human opens `/` and sees in-flight specs, open tasks, blocked items,
    now-horizon, last context build, and pins in about twenty seconds.
 2. An agent asks "what should we work on?" and gets a `summary` visual.
-3. An agent marks `001-example#T012` done; `tasks.md` changes; context
+3. An agent marks `001-reading-surface#T012` done; `tasks.md` changes; context
    rebuilds.

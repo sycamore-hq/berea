@@ -65,13 +65,7 @@ const Json = {
   opt_int
 };
 
-function horizon_json(h) {
-  if (h !== undefined) {
-    return Melange__Domain.horizon_to_string(h);
-  } else {
-    return $$null;
-  }
-}
+const horizon_json = Melange__Domain.horizon_to_string;
 
 function priority_json(p) {
   if (p !== undefined) {
@@ -95,7 +89,7 @@ function spec_card_json(c) {
       tl: {
         hd: [
           "horizon",
-          horizon_json(c.horizon)
+          Melange__Domain.horizon_to_string(c.horizon)
         ],
         tl: {
           hd: [
@@ -286,10 +280,7 @@ function roadmap_json(features) {
     return Stdlib__List.map((function (f) {
       return spec_card_json(Melange__Domain.spec_card(f));
     }), Stdlib__List.filter((function (f) {
-      const x = f.horizon;
-      return (
-        x !== undefined ? x : f.inferred_horizon
-      ) === h;
+      return f.inferred_horizon === h;
     }), features));
   };
   return obj({

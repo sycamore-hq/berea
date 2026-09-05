@@ -23,8 +23,8 @@ silent drift.
 Two of them already gave wrong answers. `specs/INDEX.md` shipped an em dash
 encoded twice, because no build gate compared the emitted JS to its source.
 The morning question — the whole point of the summary — answered with
-`001-example`, a spec with twelve of twelve boxes checked, because explicit
-`horizon:` frontmatter outranks a derived `Done`.
+the reading-surface spec, twelve of twelve boxes checked, because explicit
+`horizon:` frontmatter outranked a derived `Done`.
 
 ## Scope
 
@@ -54,4 +54,4 @@ article it must amend and amends it in the same change.
 4. A curator proposes a memory note, a human merges it, and `/memory`
    renders it. The loop has been walked, so its shape is known.
 
-See also [[001-example]], [[002-memory-notes]].
+See also [[001-reading-surface]], [[002-memory-notes]].

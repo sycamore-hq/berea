@@ -56,6 +56,20 @@ let contains hay needle =
   scan 0
 ;;
 
+(* first occurrence of [needle] at or after [from], as an option *)
+let find_from s from needle =
+  let n = String.length s
+  and m = String.length needle in
+  let rec scan i =
+    if i + m > n
+    then None
+    else if String.sub s i m = needle
+    then Some i
+    else scan (i + 1)
+  in
+  scan (max 0 from)
+;;
+
 let trim s =
   let n = String.length s in
   let rec left i =
@@ -628,13 +642,16 @@ let derive_feature_status ~gate ~plan_md ~(tasks : task list) =
 ;;
 
 let infer_horizon explicit status =
-  match explicit with
-  | Some h -> h
-  | None ->
-    (match status with
-     | In_progress | Blocked -> Now
-     | Specified | Planned -> Next
-     | Done -> Later)
+  match status with
+  | Done -> Later
+  | In_progress | Blocked ->
+    (match explicit with
+     | Some h -> h
+     | None -> Now)
+  | Specified | Planned ->
+    (match explicit with
+     | Some h -> h
+     | None -> Next)
 ;;
 
 let assemble_feature input =
@@ -742,13 +759,3 @@ let set_task_checkbox markdown task_id done_ =
     in
     Ok (String.concat "\n" rewritten)
 ;;
-;;
-(* first occurrence of [needle] at or after [from], as an option *)
-let find_from s from needle =
-  let n = String.length s and m = String.length needle in
-  let rec scan i =
-    if i + m > n then None
-    else if String.sub s i m = needle then Some i
-    else scan (i + 1)
-  in
-  scan (max 0 from)

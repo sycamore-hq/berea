@@ -23,11 +23,7 @@ let cap_tokens text max_tokens =
     Speckit.trim cut ^ "\n\n<!-- truncated -->\n")
 ;;
 
-let horizon_of_feature (f : feature) =
-  match f.horizon with
-  | Some h -> h
-  | None -> f.inferred_horizon
-;;
+let horizon_of_feature (f : feature) = f.inferred_horizon
 
 let open_tasks features =
   List.concat_map (fun f -> List.filter (fun t -> not t.is_done) f.tasks) features

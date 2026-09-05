@@ -15,4 +15,4 @@ Agents need a place for regressions and conventions without stuffing
 - Review gate (curator proposes, human merges)
 - FTS over reviewed notes
 
-See also [[001-example]].
+See also [[001-reading-surface]].

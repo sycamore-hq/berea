@@ -29,10 +29,7 @@ end
 
 open Json
 
-let horizon_json = function
-  | Some h -> str (horizon_to_string h)
-  | None -> null
-;;
+let horizon_json h = str (horizon_to_string h)
 
 let priority_json = function
   | Some p -> str (priority_to_string p)
@@ -95,10 +92,7 @@ let roadmap_json features =
   let bucket h =
     List.filter
       (fun (f : feature) ->
-         (match f.horizon with
-          | Some x -> x
-          | None -> f.inferred_horizon)
-         = h)
+         f.inferred_horizon = h)
       features
     |> List.map (fun f -> spec_card_json (spec_card f))
   in
