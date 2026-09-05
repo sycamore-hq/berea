@@ -21,10 +21,8 @@ off disk; the citations live beside each task.
 - [x] VI. Skills are procedures — T030 either wires them or says plainly that
       a human must name the file
 - [x] VII. Local, zero-touch — CI runs the same two commands a human runs
-- [ ] VIII. Horizon is optional frontmatter — T060 makes a derived `Done`
-      outrank explicit frontmatter. The article says horizon is optional; it
-      does not say frontmatter wins over `Done`. If that reading is wrong,
-      T060 amends the article in the same change.
+- [x] VIII. Horizon is optional frontmatter — T060 amends the article:
+      derived `Done` outranks explicit frontmatter. A finished spec is later.
 
 ## Order
 
@@ -36,7 +34,7 @@ order.
 T020 CI
   ├─ T030 wire the skills
   ├─ T040 fold the stray prompt
-  ├─ T050 001-example is not an example
+  ├─ T050 reading-surface is not an example
   ├─ T060 horizon expires
   ├─ T070 walk the memory loop
   ├─ T080 one slug predicate
@@ -58,5 +56,5 @@ before trusting a morning turn again.
   `specs/INDEX.md` *is* committed and does show up in `git diff --exit-code`.
 - Every task that touches `specs/` ends in `bun run index`.
 - The local switch is ocaml 5.2.0, dune 3.24.2, melange 7.0.1-52,
-  ocamlformat 0.29.0. There is no `.opam` file yet; T020 has to either
-  generate one or pin these.
+  ocamlformat 0.29.0. T020 generates `status_dash.opam` from `dune-project`
+  and pins those versions.

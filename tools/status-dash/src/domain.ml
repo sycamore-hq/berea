@@ -66,7 +66,7 @@ type feature =
 type spec_card =
   { slug : string
   ; title : string
-  ; horizon : horizon option
+  ; horizon : horizon
   ; priority : priority option
   ; status : feature_status
   ; open_tasks : int
@@ -177,6 +177,8 @@ let is_word_char c =
   is_digit c || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c = '_'
 ;;
 
+let is_slug_char c = is_word_char c || c = '-'
+
 let is_feature_slug name =
   let n = String.length name in
   n >= 5
@@ -188,20 +190,15 @@ let is_feature_slug name =
   let c = name.[4] in
   (is_digit c || (c >= 'a' && c <= 'z'))
   &&
-  let rec ok i = i >= n || (is_word_char name.[i] && ok (i + 1)) in
+  let rec ok i = i >= n || (is_slug_char name.[i] && ok (i + 1)) in
   ok 5
 ;;
-
-let task_of_feature f = f.tasks
 
 let spec_card f =
   let open_ = List.fold_left (fun n t -> if t.is_done then n else n + 1) 0 f.tasks in
   { slug = f.slug
   ; title = f.title
-  ; horizon =
-      (match f.horizon with
-       | Some h -> Some h
-       | None -> Some f.inferred_horizon)
+  ; horizon = f.inferred_horizon
   ; priority = f.priority
   ; status = f.status
   ; open_tasks = open_

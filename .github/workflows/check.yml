@@ -1,0 +1,44 @@
+# 003-harness-and-hygiene#T020
+# src/ and _generated/ are one commit. A .ml edit without a rebuild
+# copies new JS into _generated/ and git diff --exit-code turns red.
+name: check
+
+on:
+  push:
+  pull_request:
+
+defaults:
+  run:
+    working-directory: tools/status-dash
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: 5.2.0
+          dune-cache: true
+          opam-disable-sandboxing: true
+          opam-local-packages: tools/status-dash/*.opam
+
+      - name: Install OCaml deps
+        run: opam install . --deps-only --yes
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install JS deps
+        run: bun install --frozen-lockfile
+
+      - name: Build, prove generated tree, check
+        run: |
+          eval $(opam env)
+          dune build @melange
+          chmod -R u+w _generated/src
+          cp -f _build/default/_generated/src/*.js _generated/src/
+          chmod -R u+w _generated/src
+          git -C "${GITHUB_WORKSPACE}" add -A
+          git -C "${GITHUB_WORKSPACE}" diff --cached --exit-code
+          bun run check

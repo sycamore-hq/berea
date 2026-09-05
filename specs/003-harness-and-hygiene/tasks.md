@@ -18,7 +18,7 @@ this file.
 
 ## Phase 2: The gate
 
-- [ ] T020 CI: one job running `dune build @melange && git diff --exit-code
+- [x] T020 CI: one job running `dune build @melange && git diff --exit-code
       && bun run check`, on push and PR. Needs `setup-ocaml` plus
       `oven-sh/setup-bun`, a cached opam switch, and either
       `(generate_opam_files true)` with a depends stanza or pinned versions —
@@ -29,7 +29,7 @@ this file.
 
 ## Phase 3: Say what is true
 
-- [ ] T030 Wire the skills or drop the shape. Nine `SKILL.md` files carry
+- [x] T030 Wire the skills or drop the shape. Nine `SKILL.md` files carry
       trigger-packed `description:` frontmatter whose only purpose is harness
       dispatch, and `ls -d .claude` finds nothing. Either symlink
       `.claude/skills/<name>` → `../../.agents/skills/<name>`, keeping
@@ -38,53 +38,52 @@ this file.
       a skill actually loads before calling this done. Either way
       `AGENTS.md:20` and its `## Skills` section must then describe what is
       true.
-- [ ] T040 Fold `docs/prompts/initial-status-dash.md` into the writings, then
+- [x] T040 Fold `docs/prompts/initial-status-dash.md` into the writings, then
       `git rm` it. 548 lines, `## Non-negotiables` at :53 covering the same
       ground as the constitution's eight articles, and it is not in the
       Writings list at `AGENTS.md:14-22`. Rules go to the constitution,
       design goes to 001's `spec.md`/`plan.md`, superseded material stays in
       git. Done when no file outside the Writings list states a rule about
       how this repo works.
-- [ ] T050 `001-example` is not an example — it is the spec for the shipped
-      reading surface, and `tools/status-dash/fixtures/specs/001-example/`
-      uses the identical slug. Rename to `specs/001-reading-surface/`, rename
-      the fixture to something no one could mistake for a writing, update the
-      four literal `join4` paths at `check_ml.ml:58-60,208-212`, then
-      `bun run index`. Done when `grep -rn "001-example" .` returns nothing
-      outside `.git/`.
+- [x] T050 The shipped reading-surface spec was named as an example, and
+      `tools/status-dash/fixtures/specs/` used the same slug. Rename to
+      `specs/001-reading-surface/`, rename the fixture to something no one
+      could mistake for a writing, update the four literal `join4` paths in
+      `check_ml.ml`, then `bun run index`. Done when that old example slug
+      is gone from the tree outside `.git/`.
 
 ## Phase 4: Fix the derivations
 
-- [ ] T060 Explicit horizon must expire. `speckit.ml:630 infer_horizon`
-      returns `Some h` unconditionally, so `001-example` — status `done`,
-      twelve of twelve boxes checked — sits alone on the Now horizon and is
-      the only answer the dash offers to the morning question. Match on
-      `status` first so `Done` yields `Later` whatever the frontmatter says.
-      Fix it in the derivation, not by editing the writing; if this
-      contradicts Article VIII, amend the article in the same change. Done
-      when `specs/INDEX.md` shows the reading-surface spec as `done | later`,
-      `.dash/context/summary.md` reports an empty Now horizon, and a test in
-      `check_ml.ml` pins `Done + horizon: now → Later`.
-- [ ] T080 One slug predicate, in Domain. `domain.ml:180 is_feature_slug`
-      (`n >= 5`, word chars throughout) has no callers; `load_tree.ml:62
-      is_spec_dir` (`n >= 4`, accepts a bare `001-`) is the one actually
-      filtering `specs/`. Keep the Domain one, have `load_tree` call it,
-      delete `is_spec_dir`. Delete `domain.ml:195 task_of_feature`, a
-      one-line accessor with no callers. Done when one predicate exists, it
-      lives in `domain.ml`, `bun run check` passes, and `/` still lists every
-      spec plus the fixture.
-- [ ] T090 The tail of `speckit.ml`. `:745-746` closes `set_task_done` with
-      `;;` and then a second bare `;;`, leaving `find_from` stranded at :747
-      past the end of everything else — a string helper used four times from
-      `markdown.ml:37,280,297,300`. Move it up with its peers, drop the stray
-      `;;`, rebuild.
+- [x] T060 Explicit horizon must expire. `speckit.ml` `infer_horizon`
+      returned `Some h` unconditionally, so the reading-surface spec —
+      status `done`, twelve of twelve boxes checked — sat alone on the Now
+      horizon and was the only answer the dash offered to the morning
+      question. Match on `status` first so `Done` yields `Later` whatever
+      the frontmatter says. Fix it in the derivation, not by editing the
+      writing; if this contradicts Article VIII, amend the article in the
+      same change. Done when `specs/INDEX.md` shows the reading-surface spec
+      as `done | later`, `.dash/context/summary.md` reports an empty Now
+      horizon, and a test in `check_ml.ml` pins `Done + horizon: now → Later`.
+- [x] T080 One slug predicate, in Domain. `domain.ml` `is_feature_slug`
+      had no callers; `load_tree.ml` `is_spec_dir` (`n >= 4`, accepts a
+      bare `001-`) was the one actually filtering `specs/`. Keep the Domain
+      one, have `load_tree` call it, delete `is_spec_dir`. Delete
+      `domain.ml` `task_of_feature`, a one-line accessor with no callers.
+      Done when one predicate exists, it lives in `domain.ml`,
+      `bun run check` passes, and `/` still lists every spec plus the
+      fixture.
+- [x] T090 The tail of `speckit.ml`. `set_task_done` closed with `;;`
+      and then a second bare `;;`, leaving `find_from` stranded past the
+      end of everything else — a string helper used four times from
+      `markdown.ml`. Move it up with its peers, drop the stray `;;`,
+      rebuild.
 
 ## Phase 5: Walk the loop
 
-- [ ] T070 Run the memory loop once, on a real fact. `find memory -type f`
-      returns a README and four `.gitkeep`s: `curate-memory`, the
+- [x] T070 Run the memory loop once, on a real fact. `find memory -type f`
+      returned a README and four `.gitkeep`s: `curate-memory`, the
       proposal-under-`sessions/` step, the human merge and the `memory:`
-      commit prefix have never been exercised. T000's encoding bug is a
+      commit prefix had never been exercised. T000's encoding bug is a
       textbook `memory/regressions/` entry — a real failure, a diagnosed
       cause, a rule that prevents the repeat: *Melange strings are byte
       strings; every boundary out of the program must hand over bytes, never

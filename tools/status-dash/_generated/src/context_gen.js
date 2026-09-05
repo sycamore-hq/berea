@@ -39,12 +39,7 @@ function cap_tokens(text, max_tokens) {
 }
 
 function horizon_of_feature(f) {
-  const h = f.horizon;
-  if (h !== undefined) {
-    return h;
-  } else {
-    return f.inferred_horizon;
-  }
+  return f.inferred_horizon;
 }
 
 function open_tasks(features) {
@@ -194,7 +189,7 @@ function metrics_of(features) {
     const later = param[2];
     const next = param[1];
     const now = param[0];
-    const match = horizon_of_feature(f);
+    const match = f.inferred_horizon;
     switch (match) {
       case /* Now */ 0 :
         return [
@@ -321,7 +316,7 @@ function build_summary(features, blocked, generated_at) {
           }
         },
         _1: "- **%s** (%s, %s) \xe2\x80\x94 %d/%d open.%s\n"
-      }), f.slug, Melange__Domain.status_to_string(f.status), Melange__Domain.horizon_to_string(horizon_of_feature(f)), open_, Stdlib__List.length(f.tasks), next_bit));
+      }), f.slug, Melange__Domain.status_to_string(f.status), Melange__Domain.horizon_to_string(f.inferred_horizon), open_, Stdlib__List.length(f.tasks), next_bit));
     }), flight);
   }
   Stdlib__Buffer.add_string(b, "\n");
@@ -447,12 +442,12 @@ function build_summary(features, blocked, generated_at) {
           }
         },
         _1: "- **%s** (%s) \xe2\x80\x94 %s. Write `specs/%s/plan.md`.\n"
-      }), f.slug, Melange__Domain.horizon_to_string(horizon_of_feature(f)), f.title, f.slug));
+      }), f.slug, Melange__Domain.horizon_to_string(f.inferred_horizon), f.title, f.slug));
     }), unplanned);
   }
   Stdlib__Buffer.add_string(b, "\n");
   const now_specs = Stdlib__List.filter((function (f) {
-    return horizon_of_feature(f) === /* Now */ 0;
+    return f.inferred_horizon === /* Now */ 0;
   }), features);
   Stdlib__Buffer.add_string(b, "## Now horizon");
   Stdlib__Buffer.add_string(b, "\n");
@@ -612,7 +607,7 @@ function build_active(features) {
           }
         },
         _1: "Status: %s. Horizon: %s.\n\n"
-      }), Melange__Domain.status_to_string(f.status), Melange__Domain.horizon_to_string(horizon_of_feature(f))));
+      }), Melange__Domain.status_to_string(f.status), Melange__Domain.horizon_to_string(f.inferred_horizon)));
       Stdlib__Buffer.add_string(b, "\n");
       Stdlib__List.iter((function (t) {
         Stdlib__Buffer.add_string(b, "- [ ] " + (t.id + (" " + (t.title + "\n"))));
@@ -890,7 +885,7 @@ function build_index(features) {
           }
         },
         _1: "| %s | %s | %s | %s | %d/%d | [%s](./%s/) |\n"
-      }), f.slug, title, Melange__Domain.status_to_string(f.status), Melange__Domain.horizon_to_string(horizon_of_feature(f)), open_, Stdlib__List.length(f.tasks), f.slug, f.slug));
+      }), f.slug, title, Melange__Domain.status_to_string(f.status), Melange__Domain.horizon_to_string(f.inferred_horizon), open_, Stdlib__List.length(f.tasks), f.slug, f.slug));
     }), sorted);
   }
   Stdlib__Buffer.add_string(b, "\n");

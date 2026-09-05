@@ -3,7 +3,13 @@
 
 (using melange 0.1)
 
+(generate_opam_files true)
+
 (package
  (name status_dash)
  (synopsis "Spec-kit reading surface domain")
+ (depends
+  (ocaml (= 5.2.0))
+  (dune (= 3.24.2))
+  (melange (= 7.0.1-52)))
  (allow_empty))

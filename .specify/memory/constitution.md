@@ -53,5 +53,6 @@ is missing. Markplane and Pinto are sources of ideas, not formats.
 ## VIII. Horizon is optional frontmatter
 
 A spec may set `horizon: now | next | later` on `spec.md` only. If absent,
-infer: in-progress → now; specified-but-unplanned → next. Horizon is not
+infer: in-progress → now; specified-but-unplanned → next. A derived Done
+outranks explicit frontmatter: a finished spec is later. Horizon is not
 an Epic type.

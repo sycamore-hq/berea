@@ -148,6 +148,14 @@ function is_word_char(c) {
   }
 }
 
+function is_slug_char(c) {
+  if (is_word_char(c)) {
+    return true;
+  } else {
+    return c === /* '-' */45;
+  }
+}
+
 function is_feature_slug(name) {
   const n = name.length;
   if (n < 5) {
@@ -175,16 +183,12 @@ function is_feature_slug(name) {
     if (i >= n) {
       return true;
     }
-    if (!is_word_char(Caml_string.get(name, i))) {
+    if (!is_slug_char(Caml_string.get(name, i))) {
       return false;
     }
     _i = i + 1 | 0;
     continue;
   };
-}
-
-function task_of_feature(f) {
-  return f.tasks;
 }
 
 function spec_card(f) {
@@ -195,11 +199,10 @@ function spec_card(f) {
       return n + 1 | 0;
     }
   }), 0, f.tasks);
-  const h = f.horizon;
   return {
     slug: f.slug,
     title: f.title,
-    horizon: h !== undefined ? h : f.inferred_horizon,
+    horizon: f.inferred_horizon,
     priority: f.priority,
     status: f.status,
     open_tasks: open_,
@@ -227,8 +230,8 @@ export {
   parse_ref,
   is_digit,
   is_word_char,
+  is_slug_char,
   is_feature_slug,
-  task_of_feature,
   spec_card,
   task_card,
 }

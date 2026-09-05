@@ -24,10 +24,7 @@ let string_of_hits hits = J.arr (hit_json_list hits)
 
 type state = { st_tree : Load_tree.loaded_tree; st_db : Overlay.db }
 
-let horizon_label (f : feature) =
-  match f.horizon with
-  | Some h -> horizon_to_string h
-  | None -> horizon_to_string f.inferred_horizon
+let horizon_label (f : feature) = horizon_to_string f.inferred_horizon
 
 let parse_errors_json errs =
   J.arr
@@ -185,7 +182,7 @@ let create_app root =
       let in_flight = Context_gen.in_flight features in
       let now_specs =
         List.filter
-          (fun (f : feature) -> (match f.horizon with Some h -> h | None -> f.inferred_horizon) = Now)
+          (fun (f : feature) -> f.inferred_horizon = Now)
           features
       in
       let summary_path = P.join2 paths.Paths.context "summary.md" in
@@ -265,10 +262,7 @@ let create_app root =
                let cards =
                  List.filter
                    (fun (f : feature) ->
-                     (match f.horizon with
-                      | Some x -> x
-                      | None -> f.inferred_horizon)
-                     = h)
+                     f.inferred_horizon = h)
                    features
                  |> List.map spec_card
                in

@@ -99,6 +99,23 @@ function contains(hay, needle) {
   };
 }
 
+function find_from(s, from, needle) {
+  const n = s.length;
+  const m = needle.length;
+  let _i = 0 > from ? 0 : from;
+  while (true) {
+    const i = _i;
+    if ((i + m | 0) > n) {
+      return;
+    }
+    if (Stdlib__String.sub(s, i, m) === needle) {
+      return i;
+    }
+    _i = i + 1 | 0;
+    continue;
+  };
+}
+
 function trim(s) {
   const n = s.length;
   const left = function (_i) {
@@ -1015,18 +1032,23 @@ function derive_feature_status(gate, plan_md, tasks) {
 }
 
 function infer_horizon(explicit, status) {
-  if (explicit !== undefined) {
-    return explicit;
-  }
   switch (status) {
     case /* Specified */ 0 :
     case /* Planned */ 1 :
-      return /* Next */ 1;
+      if (explicit !== undefined) {
+        return explicit;
+      } else {
+        return /* Next */ 1;
+      }
     case /* Done */ 3 :
       return /* Later */ 2;
     case /* In_progress */ 2 :
     case /* Blocked */ 4 :
-      return /* Now */ 0;
+      if (explicit !== undefined) {
+        return explicit;
+      } else {
+        return /* Now */ 0;
+      }
   }
 }
 
@@ -1137,29 +1159,13 @@ function set_task_checkbox(markdown, task_id, done_) {
   };
 }
 
-function find_from(s, from, needle) {
-  const n = s.length;
-  const m = needle.length;
-  let _i = 0 > from ? 0 : from;
-  while (true) {
-    const i = _i;
-    if ((i + m | 0) > n) {
-      return;
-    }
-    if (Stdlib__String.sub(s, i, m) === needle) {
-      return i;
-    }
-    _i = i + 1 | 0;
-    continue;
-  };
-}
-
 export {
   normalize_crlf,
   lines_of,
   starts_with,
   ends_with,
   contains,
+  find_from,
   trim,
   is_space,
   strip_bom,
@@ -1189,6 +1195,5 @@ export {
   infer_horizon,
   assemble_feature,
   set_task_checkbox,
-  find_from,
 }
 /* No side effect */

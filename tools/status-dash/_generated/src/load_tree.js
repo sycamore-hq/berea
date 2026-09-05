@@ -2,7 +2,6 @@
 
 import * as Caml from "melange.js/caml.js";
 import * as Caml_js_exceptions from "melange.js/caml_js_exceptions.js";
-import * as Caml_string from "melange.js/caml_string.js";
 import * as Melange__Domain from "./domain.js";
 import * as Melange__Js_shims from "./js_shims.js";
 import * as Melange__Memory_ml from "./memory_ml.js";
@@ -53,15 +52,6 @@ function load_constitution(const_path, errs) {
   }
 }
 
-function is_spec_dir(name) {
-  const n = name.length;
-  if (n >= 4 && Melange__Domain.is_digit(Caml_string.get(name, 0)) && Melange__Domain.is_digit(Caml_string.get(name, 1)) && Melange__Domain.is_digit(Caml_string.get(name, 2))) {
-    return Caml_string.get(name, 3) === /* '-' */45;
-  } else {
-    return false;
-  }
-}
-
 function is_dir(path) {
   return Melange__Js_shims.Fs.is_dir(path);
 }
@@ -79,7 +69,7 @@ function load_tree(paths) {
       spec_mtime_ms: 0.0
     };
   }
-  const dirs = Stdlib__List.sort(Caml.caml_string_compare, Stdlib__List.filter(is_spec_dir, Stdlib__List.filter((function (name) {
+  const dirs = Stdlib__List.sort(Caml.caml_string_compare, Stdlib__List.filter(Melange__Domain.is_feature_slug, Stdlib__List.filter((function (name) {
     const p = Melange__Js_shims.Path.join2(paths.specs, name);
     try {
       return Melange__Js_shims.Fs.is_dir(p);
@@ -222,7 +212,6 @@ function load_memory_notes(include_sessionsOpt, memory_root) {
 export {
   missing_constitution,
   load_constitution,
-  is_spec_dir,
   is_dir,
   load_tree,
   walk_md,

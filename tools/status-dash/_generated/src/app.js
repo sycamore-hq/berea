@@ -74,12 +74,7 @@ function string_of_hits(hits) {
 }
 
 function horizon_label(f) {
-  const h = f.horizon;
-  if (h !== undefined) {
-    return Melange__Domain.horizon_to_string(h);
-  } else {
-    return Melange__Domain.horizon_to_string(f.inferred_horizon);
-  }
+  return Melange__Domain.horizon_to_string(f.inferred_horizon);
 }
 
 function parse_errors_json(errs) {
@@ -350,10 +345,7 @@ function create_app(root) {
     const metrics = Melange__Context_gen.metrics_of(features);
     const in_flight = Melange__Context_gen.in_flight(features);
     const now_specs = Stdlib__List.filter((function (f) {
-      const h = f.horizon;
-      return (
-        h !== undefined ? h : f.inferred_horizon
-      ) === /* Now */ 0;
+      return f.inferred_horizon === /* Now */ 0;
     }), features);
     const summary_path = Melange__Js_shims.Path.join2(paths.context, "summary.md");
     const summary_md = Nodefs.existsSync(summary_path) ? Melange__Js_shims.Fs.read_file_sync(summary_path) : "";
@@ -435,10 +427,7 @@ function create_app(root) {
       const name = param[1];
       const h = param[0];
       const cards = Stdlib__List.map(Melange__Domain.spec_card, Stdlib__List.filter((function (f) {
-        const x = f.horizon;
-        return (
-          x !== undefined ? x : f.inferred_horizon
-        ) === h;
+        return f.inferred_horizon === h;
       }), features));
       return "<h2>" + (name + ("</h2>" + Melange__Html.feature_table(cards, "No specs on " + (name + "."))));
     }), {
@@ -515,7 +504,7 @@ function create_app(root) {
       tl: {
         hd: [
           "Horizon",
-          Melange__Markdown.esc(horizon_label(feature))
+          Melange__Markdown.esc(Melange__Domain.horizon_to_string(feature.inferred_horizon))
         ],
         tl: {
           hd: [

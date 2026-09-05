@@ -59,15 +59,6 @@ let load_constitution const_path errs =
       missing_constitution const_path)
 ;;
 
-let is_spec_dir name =
-  let n = String.length name in
-  n >= 4
-  && Domain.is_digit name.[0]
-  && Domain.is_digit name.[1]
-  && Domain.is_digit name.[2]
-  && name.[3] = '-'
-;;
-
 let is_dir path = F.is_dir path
 
 let load_tree paths =
@@ -88,7 +79,7 @@ let load_tree paths =
         let p = P.join2 paths.Paths.specs name in
         try is_dir p with
         | _ -> false)
-      |> List.filter is_spec_dir
+      |> List.filter Domain.is_feature_slug
       |> List.sort compare
     in
     let features, max_mtime, errs_final =

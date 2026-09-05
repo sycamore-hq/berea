@@ -119,8 +119,8 @@ excuse either mouth from pointing at a file.
 4. Constitution only for gates and "why we don't"
 5. Reviewed memory only for facts that are not already a spec artifact
 
-Do not slurp the tree. Cap what you load. Cite `001-example` or
-`001-example#T012`.
+Do not slurp the tree. Cap what you load. Cite `001-reading-surface` or
+`001-reading-surface#T012`.
 
 **Writes.** Nothing. Examine is a read. If the summary looks
 stale, the next move is `L7`, not an edit of `summary.md`.

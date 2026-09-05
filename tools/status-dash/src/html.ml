@@ -75,7 +75,7 @@ let feature_table (cards : spec_card list) empty =
             "<tr>\n<td><a href=\"/specs/%s\">%s</a></td>\n<td>%s</td>\n<td>%s</td>\n<td>%s</td>\n<td>%d/%d</td>\n</tr>"
             (esc c.slug) (esc c.slug) (esc c.title)
             (status_pill (status_to_string c.status))
-            (match c.horizon with Some h -> esc (horizon_to_string h) | None -> "—")
+            (esc (horizon_to_string c.horizon))
             c.open_tasks c.total_tasks)
         cards
       |> String.concat ""
