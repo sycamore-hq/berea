@@ -55,6 +55,9 @@ before trusting a morning turn again.
 - `.dash/` is gitignored, so regenerating it changes nothing in git.
   `specs/INDEX.md` *is* committed and does show up in `git diff --exit-code`.
 - Every task that touches `specs/` ends in `bun run index`.
-- The local switch is ocaml 5.2.0, dune 3.24.2, melange 7.0.1-52,
-  ocamlformat 0.29.0. T020 generates `status_dash.opam` from `dune-project`
-  and pins those versions.
+- The local switch is ocaml 5.5.x (5.5.0 today), dune 3.24.2, melange
+  7.0.1-55, ocamlformat 0.29.0. Melange ships one build per OCaml minor
+  line (`7.0.1-51` … `7.0.1-55`, plus `7.0.1-414`); `7.0.1-55` constrains
+  ocaml `{>= "5.5" & < "5.6"}`, so the next compiler bump waits on a
+  Melange tag for that line. T020 generates `status_dash.opam` from
+  `dune-project` and pins those versions.
