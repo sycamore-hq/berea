@@ -22,9 +22,6 @@ let hit_json_list (hits : Overlay.memory_hit list) =
 
 let string_of_hits hits = J.arr (hit_json_list hits)
 
-let note_excerpt body =
-  if String.length body > 200 then String.sub body 0 200 else body
-
 let memory_note_item (n : Load_tree.memory_note) =
   "<li><strong>" ^ Html.esc n.note_title ^ "</strong> <code>"
   ^ Html.esc n.note_path
@@ -35,7 +32,7 @@ let memory_note_item (n : Load_tree.memory_note) =
   ^ " · "
   ^ Html.esc (Option.value n.note_as_of ~default:"")
   ^ "</span>\n<p>"
-  ^ Html.esc (note_excerpt n.note_body)
+  ^ Html.esc (Memory_ml.excerpt ~n:200 n.note_body)
   ^ "</p></li>"
 
 let memory_items_html = function
