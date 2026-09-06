@@ -208,21 +208,38 @@ let sync_checks () =
        | v :: _ -> eq_string v.E.v_kind "summary" "roundtrip kind"
        | [] -> failures := !failures @ [ "roundtrip kind: no visuals" ]));
 
-  (* 002-memory-notes#T020 — pins that fail until status is optional and
-     is_reviewed is deny-closed. Missing/unknown must not become Active. *)
+  (* 002-memory-notes#T020/T030 — reviewed is deny-closed. *)
   let note_md status =
     "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\n"
     ^ status
     ^ "---\n\n# Title\n\nbody\n"
   in
   let note_of path status = Memory_ml.parse_memory_note path (note_md status) in
+  let reviewed path status = Memory_ml.is_reviewed (note_of path status) in
+  assert_ (reviewed "memory/conventions/ok.md" "status: active\n") "active convention is reviewed";
+  assert_ (not (reviewed "memory/conventions/ok.md" "")) "missing status is not reviewed";
   assert_
-    ((note_of "memory/conventions/x.md" "").Memory_ml.status <> Memory_ml.Active)
-    "missing status is not Active";
+    (not (reviewed "memory/decisions/p.md" "status: proposal\n"))
+    "proposal is not reviewed";
   assert_
-    ((note_of "memory/conventions/x.md" "status: potato\n").Memory_ml.status
-     <> Memory_ml.Active)
-    "unknown status is not Active"
+    (not (reviewed "memory/regressions/r.md" "status: rejected\n"))
+    "rejected is not reviewed";
+  assert_
+    (not (reviewed "memory/conventions/s.md" "status: superseded\n"))
+    "superseded is not reviewed";
+  assert_
+    (not (reviewed "memory/sessions/x.md" "status: proposal\n"))
+    "session is not reviewed";
+  assert_
+    (not (reviewed "memory/orphan.md" "status: active\n"))
+    "outside trees is not reviewed";
+  assert_
+    ((note_of "memory/conventions/x.md" "").Memory_ml.status = None)
+    "missing status is None";
+  assert_
+    ((note_of "memory/conventions/x.md" "status: potato\n").Memory_ml.status = None)
+    "unknown status is None";
+  eq_string (Memory_ml.status_label None) "unknown" "status_label none"
 
 (* --- live app on a tmp project --- *)
 

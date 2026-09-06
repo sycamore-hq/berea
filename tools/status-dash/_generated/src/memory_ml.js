@@ -34,11 +34,10 @@ function status_to_string(param) {
   }
 }
 
-function normalize_status(param) {
-  if (param === undefined) {
-    return /* Active */ 0;
-  }
+function status_of_string(param) {
   switch (param) {
+    case "active" :
+      return /* Active */ 0;
     case "proposal" :
       return /* Proposal */ 3;
     case "rejected" :
@@ -46,7 +45,31 @@ function normalize_status(param) {
     case "superseded" :
       return /* Superseded */ 1;
     default:
-      return /* Active */ 0;
+      return;
+  }
+}
+
+function status_label(s) {
+  if (s !== undefined) {
+    return status_to_string(s);
+  } else {
+    return "unknown";
+  }
+}
+
+function is_reviewed(note) {
+  const match = note.kind;
+  const match$1 = note.status;
+  switch (match) {
+    case /* Session */ 3 :
+    case /* Other */ 4 :
+      return false;
+    default:
+      if (match$1 === /* Active */ 0) {
+        return true;
+      } else {
+        return false;
+      }
   }
 }
 
@@ -91,6 +114,16 @@ function is_session_path(path) {
   return kind_from_path(path) === /* Session */ 3;
 }
 
+function keep_loaded(include_sessions, note) {
+  if (is_reviewed(note)) {
+    return true;
+  } else if (include_sessions) {
+    return kind_from_path(note.path) === /* Session */ 3;
+  } else {
+    return false;
+  }
+}
+
 function should_index(include_sessionsOpt, path) {
   const include_sessions = include_sessionsOpt !== undefined ? include_sessionsOpt : false;
   if (Melange__Speckit.ends_with(".gitkeep", path) || Melange__Speckit.ends_with("memory/README.md", path) || !Melange__Speckit.ends_with(".md", path)) {
@@ -125,7 +158,9 @@ function parse_memory_note(path, text) {
   const match = Melange__Speckit.parse_frontmatter(text);
   const body = match[1];
   const attrs = match[0];
-  const status = normalize_status(Stdlib__Option.map(Stdlib__String.lowercase_ascii, Melange__Speckit.attr(attrs, "status")));
+  const status = Stdlib__Option.bind(Melange__Speckit.attr(attrs, "status"), (function (raw) {
+    return status_of_string(Stdlib__String.lowercase_ascii(raw));
+  }));
   const confidence = normalize_confidence(Stdlib__Option.map(Stdlib__String.lowercase_ascii, Melange__Speckit.attr(attrs, "confidence")));
   const h = Melange__Speckit.first_heading(body);
   let title;
@@ -157,11 +192,14 @@ function parse_memory_note(path, text) {
 export {
   kind_to_string,
   status_to_string,
-  normalize_status,
+  status_of_string,
+  status_label,
+  is_reviewed,
   normalize_confidence,
   basename,
   kind_from_path,
   is_session_path,
+  keep_loaded,
   should_index,
   excerpt,
   parse_memory_note,

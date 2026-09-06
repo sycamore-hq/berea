@@ -21,6 +21,7 @@ import * as Melange__Speckit from "./speckit.js";
 import * as Melange__Views from "./views.js";
 import * as Stdlib from "melange/stdlib.js";
 import * as Stdlib__List from "melange/list.js";
+import * as Stdlib__Option from "melange/option.js";
 import * as Stdlib__Printf from "melange/printf.js";
 import * as Stdlib__String from "melange/string.js";
 import * as Bunsqlite from "bun:sqlite";
@@ -71,6 +72,26 @@ function hit_json_list(hits) {
 
 function string_of_hits(hits) {
   return Melange__Views.Json.arr(hit_json_list(hits));
+}
+
+function note_excerpt(body) {
+  if (body.length > 200) {
+    return Stdlib__String.sub(body, 0, 200);
+  } else {
+    return body;
+  }
+}
+
+function memory_note_item(n) {
+  return "<li><strong>" + (Melange__Markdown.esc(n.note_title) + ("</strong> <code>" + (Melange__Markdown.esc(n.note_path) + ("</code>\n<span class=\"muted\">" + (Melange__Markdown.esc(Melange__Memory_ml.kind_to_string(n.note_kind)) + (" \xc2\xb7 " + (Melange__Markdown.esc(Melange__Memory_ml.status_label(n.note_status)) + (" \xc2\xb7 " + (Melange__Markdown.esc(Stdlib__Option.value(n.note_as_of, "")) + ("</span>\n<p>" + (Melange__Markdown.esc(note_excerpt(n.note_body)) + "</p></li>")))))))))));
+}
+
+function memory_items_html(notes) {
+  if (notes) {
+    return "<ul>" + (Stdlib__String.concat("", Stdlib__List.map(memory_note_item, notes)) + "</ul>");
+  } else {
+    return "<p class=\"empty\">No reviewed notes. Action agents append <code>memory/sessions/</code> only. Curator proposes the rest.</p>";
+  }
 }
 
 function horizon_label(f) {
@@ -575,12 +596,7 @@ function create_app(root) {
   }));
   app.get("/memory", (function (c) {
     const notes = Melange__Load_tree.load_memory_notes(undefined, paths.memory);
-    const items = Caml_obj.caml_equal(notes, /* [] */ 0) ? "<p class=\"empty\">No reviewed notes. Action agents append <code>memory/sessions/</code> only. Curator proposes the rest.</p>" : "<ul>" + (Stdlib__String.concat("", Stdlib__List.map((function (n) {
-        const s = n.note_as_of;
-        const b = n.note_body;
-        return "<li><strong>" + (Melange__Markdown.esc(n.note_title) + ("</strong> <code>" + (Melange__Markdown.esc(n.note_path) + ("</code>\n<span class=\"muted\">" + (Melange__Markdown.esc(Melange__Memory_ml.kind_to_string(n.note_kind)) + (" \xc2\xb7 " + (Melange__Markdown.esc(s !== undefined ? s : "") + ("</span>\n<p>" + (Melange__Markdown.esc(b.length > 200 ? Stdlib__String.sub(b, 0, 200) : b) + "</p></li>")))))))));
-      }), notes)) + "</ul>");
-    const body = "<h1>Memory</h1>\n<p>Read-only. Constitution is not copied here; point at it.</p>\n" + items;
+    const body = "<h1>Memory</h1>\n<p>Read-only. Constitution is not copied here; point at it.</p>\n" + memory_items_html(notes);
     return Melange__Hono.html_resp(c, page_html("Memory", "/memory", body));
   }));
   app.get("/static/:file", (function (c) {
@@ -1018,6 +1034,9 @@ function create_app(root) {
 export {
   hit_json_list,
   string_of_hits,
+  note_excerpt,
+  memory_note_item,
+  memory_items_html,
   horizon_label,
   parse_errors_json,
   health_json,
