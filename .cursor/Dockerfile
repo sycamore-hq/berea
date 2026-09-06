@@ -40,7 +40,8 @@ WORKDIR /home/opam
 ENV PATH="/home/opam/.opam/5.5/bin:/usr/local/bin:${PATH}"
 
 # opam-repository@b99de613 (2026-09-06) resolves the four house pins.
-# OPAMYES / OPAMCONFIRMLEVEL stay on this RUN; they must not persist as ENV.
+# The base image already exports OPAMYES / OPAMCONFIRMLEVEL (see above). They are
+# repeated on this RUN only so it stays non-interactive if a base rebuild drops them.
 RUN git -C /home/opam/opam-repository fetch --depth 1 origin b99de6133afc2d00ac41252541e04606932e62f7 \
  && git -C /home/opam/opam-repository reset -q --hard FETCH_HEAD \
  && OPAMYES=1 OPAMCONFIRMLEVEL=unsafe-yes opam update \
