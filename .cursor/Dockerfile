@@ -10,6 +10,8 @@
 
 FROM ocaml/opam:ubuntu-24.04-ocaml-5.5
 
+# The ocaml/opam base already exports OPAMYES=1 and
+# OPAMCONFIRMLEVEL=unsafe-yes. Do not re-declare them here.
 ENV DEBIAN_FRONTEND=noninteractive \
     OPAMCOLOR=never \
     OPAMROOT=/home/opam/.opam
