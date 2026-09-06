@@ -97,16 +97,28 @@ function basename(path) {
 }
 
 function kind_from_path(path) {
-  if (Melange__Speckit.contains(path, "/decisions/")) {
-    return /* Decision */ 0;
-  } else if (Melange__Speckit.contains(path, "/regressions/")) {
-    return /* Regression */ 1;
-  } else if (Melange__Speckit.contains(path, "/conventions/")) {
-    return /* Convention */ 2;
-  } else if (Melange__Speckit.contains(path, "/sessions/")) {
-    return /* Session */ 3;
-  } else {
+  const match = Stdlib__String.split_on_char(/* '/' */47, path);
+  if (!match) {
     return /* Other */ 4;
+  }
+  if (match.hd !== "memory") {
+    return /* Other */ 4;
+  }
+  const match$1 = match.tl;
+  if (!match$1) {
+    return /* Other */ 4;
+  }
+  switch (match$1.hd) {
+    case "conventions" :
+      return /* Convention */ 2;
+    case "decisions" :
+      return /* Decision */ 0;
+    case "regressions" :
+      return /* Regression */ 1;
+    case "sessions" :
+      return /* Session */ 3;
+    default:
+      return /* Other */ 4;
   }
 }
 
@@ -118,7 +130,7 @@ function keep_loaded(include_sessions, note) {
   if (is_reviewed(note)) {
     return true;
   } else if (include_sessions) {
-    return kind_from_path(note.path) === /* Session */ 3;
+    return note.kind === /* Session */ 3;
   } else {
     return false;
   }

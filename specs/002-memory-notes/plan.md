@@ -30,7 +30,6 @@ a lie.
 - `load_tree.ml:26-32` `memory_note` drops `status`
 - `memory_ml.ml:77-86` `should_index` is path-only, so a
   `status: proposal` under `decisions/` is indexed
-- `overlay.ml:185` `search_memory` hardcodes `hit_status = "active"`
 - `check_ml.ml:332-337` asserts the memory *visual*, not that FTS
   found the fixture or excluded a non-reviewed note
 - `003-harness-and-hygiene#T070` owns the first real note. This plan
@@ -53,4 +52,8 @@ implementor can see the pins fail, then turn them green. `src/` and
 
 - `include_sessions` stays a path escape. Default load is reviewed
   notes only.
+- `overlay.ml:185` still hardcodes `hit_status = "active"`. That is
+  true by construction: `rebuild.ml` fills `memory_fts` from
+  `load_memory_notes` with the default load, so every hit is
+  `Active`. Not a remaining gap.
 - Do not place a note under `memory/regressions/` here. That is T070.

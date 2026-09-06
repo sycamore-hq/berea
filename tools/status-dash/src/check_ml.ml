@@ -234,6 +234,9 @@ let sync_checks () =
     (not (reviewed "memory/orphan.md" "status: active\n"))
     "outside trees is not reviewed";
   assert_
+    (not (reviewed "memory/sessions/decisions/x.md" "status: active\n"))
+    "nested session path is not reviewed";
+  assert_
     ((note_of "memory/conventions/x.md" "").Memory_ml.status = None)
     "missing status is None";
   assert_

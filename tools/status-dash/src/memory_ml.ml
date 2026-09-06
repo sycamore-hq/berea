@@ -72,21 +72,18 @@ let basename path =
 ;;
 
 let kind_from_path path =
-  if Speckit.contains path "/decisions/"
-  then Decision
-  else if Speckit.contains path "/regressions/"
-  then Regression
-  else if Speckit.contains path "/conventions/"
-  then Convention
-  else if Speckit.contains path "/sessions/"
-  then Session
-  else Other
+  match String.split_on_char '/' path with
+  | "memory" :: "decisions" :: _ -> Decision
+  | "memory" :: "regressions" :: _ -> Regression
+  | "memory" :: "conventions" :: _ -> Convention
+  | "memory" :: "sessions" :: _ -> Session
+  | _ -> Other
 ;;
 
 let is_session_path path = kind_from_path path = Session
 
 let keep_loaded ~include_sessions note =
-  is_reviewed note || (include_sessions && is_session_path note.path)
+  is_reviewed note || (include_sessions && note.kind = Session)
 ;;
 
 (* Skip sessions by default when indexing FTS. *)

@@ -311,6 +311,7 @@ function sync_checks(param) {
   assert_(!Melange__Memory_ml.is_reviewed(Melange__Memory_ml.parse_memory_note("memory/conventions/s.md", "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\nstatus: superseded\n---\n\n# Title\n\nbody\n")), "superseded is not reviewed");
   assert_(!Melange__Memory_ml.is_reviewed(Melange__Memory_ml.parse_memory_note("memory/sessions/x.md", "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\nstatus: proposal\n---\n\n# Title\n\nbody\n")), "session is not reviewed");
   assert_(!Melange__Memory_ml.is_reviewed(Melange__Memory_ml.parse_memory_note("memory/orphan.md", "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\nstatus: active\n---\n\n# Title\n\nbody\n")), "outside trees is not reviewed");
+  assert_(!Melange__Memory_ml.is_reviewed(Melange__Memory_ml.parse_memory_note("memory/sessions/decisions/x.md", "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\nstatus: active\n---\n\n# Title\n\nbody\n")), "nested session path is not reviewed");
   assert_(Melange__Memory_ml.parse_memory_note("memory/conventions/x.md", "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\n---\n\n# Title\n\nbody\n").status === undefined, "missing status is None");
   assert_(Melange__Memory_ml.parse_memory_note("memory/conventions/x.md", "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\nstatus: potato\n---\n\n# Title\n\nbody\n").status === undefined, "unknown status is None");
   eq_string(Melange__Memory_ml.status_label(undefined), "unknown", "status_label none");

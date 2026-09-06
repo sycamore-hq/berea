@@ -74,16 +74,8 @@ function string_of_hits(hits) {
   return Melange__Views.Json.arr(hit_json_list(hits));
 }
 
-function note_excerpt(body) {
-  if (body.length > 200) {
-    return Stdlib__String.sub(body, 0, 200);
-  } else {
-    return body;
-  }
-}
-
 function memory_note_item(n) {
-  return "<li><strong>" + (Melange__Markdown.esc(n.note_title) + ("</strong> <code>" + (Melange__Markdown.esc(n.note_path) + ("</code>\n<span class=\"muted\">" + (Melange__Markdown.esc(Melange__Memory_ml.kind_to_string(n.note_kind)) + (" \xc2\xb7 " + (Melange__Markdown.esc(Melange__Memory_ml.status_label(n.note_status)) + (" \xc2\xb7 " + (Melange__Markdown.esc(Stdlib__Option.value(n.note_as_of, "")) + ("</span>\n<p>" + (Melange__Markdown.esc(note_excerpt(n.note_body)) + "</p></li>")))))))))));
+  return "<li><strong>" + (Melange__Markdown.esc(n.note_title) + ("</strong> <code>" + (Melange__Markdown.esc(n.note_path) + ("</code>\n<span class=\"muted\">" + (Melange__Markdown.esc(Melange__Memory_ml.kind_to_string(n.note_kind)) + (" \xc2\xb7 " + (Melange__Markdown.esc(Melange__Memory_ml.status_label(n.note_status)) + (" \xc2\xb7 " + (Melange__Markdown.esc(Stdlib__Option.value(n.note_as_of, "")) + ("</span>\n<p>" + (Melange__Markdown.esc(Melange__Memory_ml.excerpt(200, n.note_body)) + "</p></li>")))))))))));
 }
 
 function memory_items_html(notes) {
@@ -1034,7 +1026,6 @@ function create_app(root) {
 export {
   hit_json_list,
   string_of_hits,
-  note_excerpt,
   memory_note_item,
   memory_items_html,
   horizon_label,
