@@ -24,14 +24,14 @@ this file.
 
 ## Phase 3: Make the pins green
 
-- [ ] T030 Status is parsed, not defaulted. Replace
+- [x] T030 Status is parsed, not defaulted. Replace
       `normalize_status` (`memory_ml.ml:43-48`) with `status_of_string`
       returning `status option`. Missing or unknown is `None`, never
       `Active`. `note.status` becomes `status option`. `is_reviewed`:
       `Active` and kind `Decision | Regression | Convention`. Deny-closed
       on every other pair. Done when the unit pins in T020 pass.
 
-- [ ] T040 `load_memory_notes` keeps `note_status` and drops notes that
+- [x] T040 `load_memory_notes` keeps `note_status` and drops notes that
       fail `is_reviewed` (unless `include_sessions` keeps a session on
       the path filter). FTS and `/memory` call the default load.
       `/memory` shows kind · status · as_of. Empty copy unchanged.

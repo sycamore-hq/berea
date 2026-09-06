@@ -288,12 +288,7 @@ function sync_checks(param) {
     });
   }
   const round = Melange__Envelope.decode_envelope(morning);
-  if (round.TAG !== /* Decode_ok */ 0) {
-    failures.contents = Stdlib.$at(failures.contents, {
-      hd: "envelope roundtrip ok: " + round._0,
-      tl: /* [] */ 0
-    });
-  } else {
+  if (round.TAG === /* Decode_ok */ 0) {
     const match = round._0.e_visuals;
     if (match) {
       eq_string(match.hd.v_kind, "summary", "roundtrip kind");
@@ -303,15 +298,22 @@ function sync_checks(param) {
         tl: /* [] */ 0
       });
     }
+  } else {
+    failures.contents = Stdlib.$at(failures.contents, {
+      hd: "envelope roundtrip ok: " + round._0,
+      tl: /* [] */ 0
+    });
   }
-  const note_md = function (status) {
-    return "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\n" + (status + "---\n\n# Title\n\nbody\n");
-  };
-  const note_of = function (path, status) {
-    return Melange__Memory_ml.parse_memory_note(path, note_md(status));
-  };
-  assert_(Caml_obj.caml_notequal(note_of("memory/conventions/x.md", "").status, /* Active */ 0), "missing status is not Active");
-  assert_(Caml_obj.caml_notequal(note_of("memory/conventions/x.md", "status: potato\n").status, /* Active */ 0), "unknown status is not Active");
+  assert_(Melange__Memory_ml.is_reviewed(Melange__Memory_ml.parse_memory_note("memory/conventions/ok.md", "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\nstatus: active\n---\n\n# Title\n\nbody\n")), "active convention is reviewed");
+  assert_(!Melange__Memory_ml.is_reviewed(Melange__Memory_ml.parse_memory_note("memory/conventions/ok.md", "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\n---\n\n# Title\n\nbody\n")), "missing status is not reviewed");
+  assert_(!Melange__Memory_ml.is_reviewed(Melange__Memory_ml.parse_memory_note("memory/decisions/p.md", "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\nstatus: proposal\n---\n\n# Title\n\nbody\n")), "proposal is not reviewed");
+  assert_(!Melange__Memory_ml.is_reviewed(Melange__Memory_ml.parse_memory_note("memory/regressions/r.md", "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\nstatus: rejected\n---\n\n# Title\n\nbody\n")), "rejected is not reviewed");
+  assert_(!Melange__Memory_ml.is_reviewed(Melange__Memory_ml.parse_memory_note("memory/conventions/s.md", "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\nstatus: superseded\n---\n\n# Title\n\nbody\n")), "superseded is not reviewed");
+  assert_(!Melange__Memory_ml.is_reviewed(Melange__Memory_ml.parse_memory_note("memory/sessions/x.md", "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\nstatus: proposal\n---\n\n# Title\n\nbody\n")), "session is not reviewed");
+  assert_(!Melange__Memory_ml.is_reviewed(Melange__Memory_ml.parse_memory_note("memory/orphan.md", "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\nstatus: active\n---\n\n# Title\n\nbody\n")), "outside trees is not reviewed");
+  assert_(Melange__Memory_ml.parse_memory_note("memory/conventions/x.md", "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\n---\n\n# Title\n\nbody\n").status === undefined, "missing status is None");
+  assert_(Melange__Memory_ml.parse_memory_note("memory/conventions/x.md", "---\nas_of: 2026-08-28\nsource: human\nconfidence: high\nstatus: potato\n---\n\n# Title\n\nbody\n").status === undefined, "unknown status is None");
+  eq_string(Melange__Memory_ml.status_label(undefined), "unknown", "status_label none");
 }
 
 function write_note(root, tree, name, body) {

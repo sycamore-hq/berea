@@ -27,6 +27,7 @@ type memory_note =
   { note_path : string
   ; note_title : string
   ; note_as_of : string option
+  ; note_status : Memory_ml.status option
   ; note_body : string
   ; note_kind : Memory_ml.kind
   }
@@ -169,26 +170,32 @@ let walk_md dir =
   go [] dir
 ;;
 
+let to_loaded_note (note : Memory_ml.note) =
+  { note_path = note.path
+  ; note_title = note.title
+  ; note_as_of = note.as_of
+  ; note_status = note.status
+  ; note_body = note.body
+  ; note_kind = note.kind
+  }
+;;
+
+let parse_if_indexed ~include_sessions path abs =
+  if not (Memory_ml.should_index ~include_sessions path)
+  then None
+  else Some (Memory_ml.parse_memory_note path (F.read_file_sync abs))
+;;
+
+let load_one ~include_sessions memory_root abs =
+  let path = "memory/" ^ P.relative memory_root abs in
+  match parse_if_indexed ~include_sessions path abs with
+  | Some note when Memory_ml.keep_loaded ~include_sessions note ->
+    Some (to_loaded_note note)
+  | Some _ | None -> None
+;;
+
 let load_memory_notes ?(include_sessions = false) memory_root =
   if not (F.exists_sync memory_root)
   then []
-  else (
-    let files = walk_md memory_root in
-    List.filter_map
-      (fun abs ->
-         let rel = P.relative memory_root abs in
-         let path = "memory/" ^ rel in
-         if Memory_ml.should_index ~include_sessions path
-         then (
-           let text = F.read_file_sync abs in
-           let note = Memory_ml.parse_memory_note path text in
-           Some
-             { note_path = note.Memory_ml.path
-             ; note_title = note.Memory_ml.title
-             ; note_as_of = note.Memory_ml.as_of
-             ; note_body = note.Memory_ml.body
-             ; note_kind = note.Memory_ml.kind
-             })
-         else None)
-      files)
+  else List.filter_map (load_one ~include_sessions memory_root) (walk_md memory_root)
 ;;

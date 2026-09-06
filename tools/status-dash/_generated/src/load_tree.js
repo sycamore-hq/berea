@@ -185,28 +185,42 @@ function walk_md(dir) {
   return go(/* [] */ 0, dir);
 }
 
+function to_loaded_note(note) {
+  return {
+    note_path: note.path,
+    note_title: note.title,
+    note_as_of: note.as_of,
+    note_status: note.status,
+    note_body: note.body,
+    note_kind: note.kind
+  };
+}
+
+function parse_if_indexed(include_sessions, path, abs) {
+  if (Melange__Memory_ml.should_index(include_sessions, path)) {
+    return Melange__Memory_ml.parse_memory_note(path, Melange__Js_shims.Fs.read_file_sync(abs));
+  }
+  
+}
+
+function load_one(include_sessions, memory_root, abs) {
+  const path = "memory/" + Nodepath.relative(memory_root, abs);
+  const note = parse_if_indexed(include_sessions, path, abs);
+  if (note !== undefined && Melange__Memory_ml.keep_loaded(include_sessions, note)) {
+    return to_loaded_note(note);
+  }
+  
+}
+
 function load_memory_notes(include_sessionsOpt, memory_root) {
   const include_sessions = include_sessionsOpt !== undefined ? include_sessionsOpt : false;
-  if (!Nodefs.existsSync(memory_root)) {
+  if (Nodefs.existsSync(memory_root)) {
+    return Stdlib__List.filter_map((function (param) {
+      return load_one(include_sessions, memory_root, param);
+    }), walk_md(memory_root));
+  } else {
     return /* [] */ 0;
   }
-  const files = walk_md(memory_root);
-  return Stdlib__List.filter_map((function (abs) {
-    const rel = Nodepath.relative(memory_root, abs);
-    const path = "memory/" + rel;
-    if (!Melange__Memory_ml.should_index(include_sessions, path)) {
-      return;
-    }
-    const text = Melange__Js_shims.Fs.read_file_sync(abs);
-    const note = Melange__Memory_ml.parse_memory_note(path, text);
-    return {
-      note_path: note.path,
-      note_title: note.title,
-      note_as_of: note.as_of,
-      note_body: note.body,
-      note_kind: note.kind
-    };
-  }), files);
 }
 
 export {
@@ -215,6 +229,9 @@ export {
   is_dir,
   load_tree,
   walk_md,
+  to_loaded_note,
+  parse_if_indexed,
+  load_one,
   load_memory_notes,
 }
 /* Melange__Js_shims Not a pure module */
