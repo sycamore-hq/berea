@@ -1,0 +1,21 @@
+{
+  "name": "berea",
+  "user": "opam",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "install": "bash .cursor/install.sh",
+  "terminals": [
+    {
+      "name": "status-dash",
+      "command": "bash .cursor/install.sh && cd tools/status-dash && bun run bootstrap && bun run dev",
+      "description": "Berea Reading (status dash) on port 8787, bound to 0.0.0.0"
+    }
+  ],
+  "ports": [
+    {
+      "name": "status-dash",
+      "port": 8787
+    }
+  ]
+}
