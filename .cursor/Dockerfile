@@ -33,6 +33,10 @@ RUN apt-get update \
 USER opam
 WORKDIR /home/opam
 
+# Non-login shells (install / terminals) need the switch on PATH.
+# Set it before the install RUN so `ocaml -vnum` is the 5.5 switch, not PATH-less.
+ENV PATH="/home/opam/.opam/5.5/bin:/usr/local/bin:${PATH}"
+
 # opam-repository@b99de613 (2026-09-06) resolves the four house pins.
 # OPAMYES / OPAMCONFIRMLEVEL stay on this RUN; they must not persist as ENV.
 RUN git -C /home/opam/opam-repository fetch --depth 1 origin b99de6133afc2d00ac41252541e04606932e62f7 \
@@ -40,6 +44,3 @@ RUN git -C /home/opam/opam-repository fetch --depth 1 origin b99de6133afc2d00ac4
  && OPAMYES=1 OPAMCONFIRMLEVEL=unsafe-yes opam update \
  && OPAMYES=1 OPAMCONFIRMLEVEL=unsafe-yes opam install -y dune.3.24.2 ocamlformat.0.29.0 melange.7.0.1-55 \
  && ocaml -vnum | grep -Eq '^5\.5\.[0-9]+$'
-
-# Non-login shells (install / terminals) need the switch on PATH.
-ENV PATH="/home/opam/.opam/5.5/bin:/usr/local/bin:${PATH}"
