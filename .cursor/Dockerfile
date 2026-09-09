@@ -50,7 +50,7 @@ ENV PATH="/home/opam/.opam/5.5/bin:/usr/local/bin:${PATH}"
 # Point /usr/bin/opam at 2.5 before any opam command so the root format
 # upgrades once (2.1 → 2.2 layout) and later RUNs see --with-dev-setup.
 # --disable-sandboxing matches the ocaml/opam root and setup-ocaml on CI;
-# --reinit would otherwise re-enable bwrap when the build-time probe succeeds.
+# --reinit would otherwise write wrap-*-commands → sandbox.sh when bwrap works.
 # The base image already exports OPAMYES / OPAMCONFIRMLEVEL (see above). They are
 # repeated on this RUN only so it stays non-interactive if a base rebuild drops them.
 RUN sudo ln -f /usr/bin/opam-2.5 /usr/bin/opam \
@@ -58,7 +58,7 @@ RUN sudo ln -f /usr/bin/opam-2.5 /usr/bin/opam \
  && git -C /home/opam/opam-repository fetch --depth 1 origin b99de6133afc2d00ac41252541e04606932e62f7 \
  && git -C /home/opam/opam-repository reset -q --hard FETCH_HEAD \
  && OPAMYES=1 OPAMCONFIRMLEVEL=unsafe-yes opam init --reinit -ni --disable-sandboxing \
- && test "$(grep -c bwrap /home/opam/.opam/config || true)" = 0 \
+ && test "$(grep -c 'sandbox.sh' /home/opam/.opam/config || true)" = 0 \
  && opam repository list | grep -q '/home/opam/opam-repository' \
  && OPAMYES=1 OPAMCONFIRMLEVEL=unsafe-yes opam update \
  && OPAMYES=1 OPAMCONFIRMLEVEL=unsafe-yes opam install -y dune.3.24.2 ocamlformat.0.29.0 melange.7.0.1-55 \
