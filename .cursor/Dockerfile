@@ -1,6 +1,6 @@
 # Cloud Agent base image for sycamore-hq/berea.
 # Pins match specs/003-harness-and-hygiene/plan.md:
-#   ocaml 5.5.x (5.5.0 today), dune 3.24.2, melange 7.0.1-55, ocamlformat 0.29.0
+#   ocaml 5.5.x (5.5.1 today), dune 3.24.2, melange 7.0.1-55, ocamlformat 0.29.0
 #   opam 2.5.x (2.5.2 today) — same minor as ocaml/setup-ocaml on CI.
 # Do not COPY the repo — Cursor checks out the requested revision itself.
 #
