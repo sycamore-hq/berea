@@ -1,8 +1,8 @@
 # Cursor Cloud (Berea)
 
 Pins match `specs/003-harness-and-hygiene/plan.md`: OCaml 5.5.x (5.5.0
-today), dune 3.24.2, Melange 7.0.1-55, ocamlformat 0.29.0, bun 1.4.2.
-opam is 2.5.x (2.5.2 today). The `ocaml/opam` base leaves `/usr/bin/opam`
+today), dune 3.24.2, Melange 7.0.1-55, ocamlformat 0.29.0, opam 2.5.x
+(2.5.2 today), bun 1.4.2. The `ocaml/opam` base leaves `/usr/bin/opam`
 on 2.1 for CI coverage; the Dockerfile points it at `/usr/bin/opam-2.5`
 so `{with-dev-setup}` (opam 2.2+) matches `ocaml/setup-ocaml` on GitHub Actions.
 
