@@ -16,7 +16,8 @@ Article II: if it isn't in the files, it isn't so. `003-harness-and-hygiene`
 T020 made `dune-project` / `status_dash.opam` and CI the pins the build
 uses. On `7079c49` (#18) those writings and CI already name **5.5.1**,
 but `dune-project` still pins a 5.5 range (`>= 5.5.0` and `< 5.6`) and
-the committed Melange stdlib JS was produced on 5.5.0. 5.5.0 still has
+the committed Melange stdlib JS dates from `09b45ee`, before any pin
+existed, so nothing on disk says which switch emitted it. 5.5.0 still has
 the type-system and Marshal/bytecode holes, so this slug pins the patch
 exactly and makes the committed `_generated/` tree prove it.
 
