@@ -19,7 +19,7 @@ jobs:
 
       - uses: ocaml/setup-ocaml@v3
         with:
-          ocaml-compiler: 5.2.0
+          ocaml-compiler: 5.5.0
           dune-cache: true
           opam-disable-sandboxing: true
           opam-local-packages: tools/status-dash/*.opam
