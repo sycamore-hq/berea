@@ -17,6 +17,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Git 2.55+ takes .git/objects/maintenance.lock from a detached
+      # `git maintenance run --auto`. opam 2.5 lstat's that path while
+      # cloning opam-repository and exits 40 (ocaml/opam#7031). Same
+      # workaround as ocurrent/ocaml-dockerfile#270.
+      - name: Keep git maintenance in the foreground
+        working-directory: ${{ github.workspace }}
+        run: git config --global gc.autoDetach false
+
       - uses: ocaml/setup-ocaml@v3
         with:
           ocaml-compiler: 5.5.0
