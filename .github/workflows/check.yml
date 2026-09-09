@@ -35,6 +35,14 @@ jobs:
       - name: Install OCaml deps
         run: opam install . --deps-only --with-dev-setup --yes
 
+      - name: Show toolchain
+        run: |
+          eval $(opam env)
+          opam --version
+          ocaml -version
+          dune --version
+          ocaml -version | grep -F '5.5.1'
+
       - uses: oven-sh/setup-bun@v2
 
       - name: Install JS deps
@@ -44,9 +52,11 @@ jobs:
         run: |
           eval $(opam env)
           dune build @melange
-          chmod -R u+w _generated/src
+          chmod -R u+w _generated
           cp -f _build/default/_generated/src/*.js _generated/src/
-          chmod -R u+w _generated/src
+          rm -rf _generated/node_modules
+          cp -a _build/default/_generated/node_modules _generated/node_modules
+          chmod -R u+w _generated
           git -C "${GITHUB_WORKSPACE}" add -A
           git -C "${GITHUB_WORKSPACE}" diff --cached --exit-code
           bun run check
