@@ -1,7 +1,7 @@
 # Cloud Agent base image for sycamore-hq/berea.
 # Pins match specs/003-harness-and-hygiene/plan.md:
 #   ocaml 5.5.x (5.5.0 today), dune 3.24.2, melange 7.0.1-55, ocamlformat 0.29.0
-# opam 2.5.x (2.5.2 today) — same minor as ocaml/setup-ocaml on CI.
+#   opam 2.5.x (2.5.2 today) — same minor as ocaml/setup-ocaml on CI.
 # Do not COPY the repo — Cursor checks out the requested revision itself.
 #
 # ocaml/opam minor tags resolve to the latest patch; the switch is named 5.5
@@ -49,13 +49,17 @@ ENV PATH="/home/opam/.opam/5.5/bin:/usr/local/bin:${PATH}"
 # opam-repository@b99de613 (2026-09-06) resolves the four house pins.
 # Point /usr/bin/opam at 2.5 before any opam command so the root format
 # upgrades once (2.1 → 2.2 layout) and later RUNs see --with-dev-setup.
+# --disable-sandboxing matches the ocaml/opam root and setup-ocaml on CI;
+# --reinit would otherwise re-enable bwrap when the build-time probe succeeds.
 # The base image already exports OPAMYES / OPAMCONFIRMLEVEL (see above). They are
 # repeated on this RUN only so it stays non-interactive if a base rebuild drops them.
 RUN sudo ln -f /usr/bin/opam-2.5 /usr/bin/opam \
+ && opam --version | grep -Eq '^2\.5\.[0-9]+$' \
  && git -C /home/opam/opam-repository fetch --depth 1 origin b99de6133afc2d00ac41252541e04606932e62f7 \
  && git -C /home/opam/opam-repository reset -q --hard FETCH_HEAD \
- && OPAMYES=1 OPAMCONFIRMLEVEL=unsafe-yes opam init --reinit -ni \
- && opam --version | grep -Eq '^2\.5\.[0-9]+$' \
+ && OPAMYES=1 OPAMCONFIRMLEVEL=unsafe-yes opam init --reinit -ni --disable-sandboxing \
+ && test "$(grep -c bwrap /home/opam/.opam/config || true)" = 0 \
+ && opam repository list | grep -q '/home/opam/opam-repository' \
  && OPAMYES=1 OPAMCONFIRMLEVEL=unsafe-yes opam update \
  && OPAMYES=1 OPAMCONFIRMLEVEL=unsafe-yes opam install -y dune.3.24.2 ocamlformat.0.29.0 melange.7.0.1-55 \
  && ocaml -vnum | grep -Eq '^5\.5\.[0-9]+$'
